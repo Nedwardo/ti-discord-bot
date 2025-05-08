@@ -1,5 +1,5 @@
 import { REST, Routes, Client, GatewayIntentBits, Events } from 'discord.js';
-import { TOKEN, CLIENT_ID } from './env.*';
+import { TOKEN, CLIENT_ID } from './env.ts';
 import clear_existing_commands from './utils/clear_existing_commands.js'
 import getCommands from './utils/commands.js'
 

@@ -1,5 +1,5 @@
 import { REST, Routes} from 'discord.js';
-import { CLIENT_ID, GUILD_ID } from '../env.*';
+import { CLIENT_ID, GUILD_ID } from '../env.ts';
 
 async function clear_existing_commands(rest: REST){
     const guild_promise = rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), { body: [] })
