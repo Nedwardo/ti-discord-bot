@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "lib": [
+          "es2022", "DOM"
+        ],
+      "target": "ES2022",
+      "module": "NodeNext",
+      "strict": true,
+      "skipLibCheck": true,
+      "outDir": "./dist",
+      "resolveJsonModule": true
+    },
+    "include": ["*.ts", "**/*.ts", "env.*"],
+    "exclude": ["node_modules"]
+  }

@@ -1,0 +1,31 @@
+{
+    "name": "nedwardo_ti_discord_bot",
+    "version": "1.0.0",
+    "description": "nedwardo_ti_discord_bot is a Bot that operates reporting of ti games.",
+    "main": "main.js",
+    "dependencies": {
+        "discord.js": "^14.19.3"
+    },
+    "type": "module",
+    "scripts": {
+        "start": "tsc --resolveJsonModule && node dist/main.js",
+        "build": "tsc di",
+        "lint": "npx eslint"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Nedwardo/ti-discord-bot.git"
+    },
+    "author": "Nedwardo",
+    "license": "OSL-3.0",
+    "devDependencies": {
+        "@eslint/js": "^9.26.0",
+        "eslint": "^9.26.0",
+        "typescript": "^5.8.3"
+    },
+    "keywords": [],
+    "bugs": {
+        "url": "https://github.com/Nedwardo/ti-discord-bot/issues"
+    },
+    "homepage": "https://github.com/Nedwardo/ti-discord-bot#readme"
+}
