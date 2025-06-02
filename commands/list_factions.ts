@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, EmbedBuilder, InteractionReplyOptions, SlashCommandBuilder } from 'discord.js';
-import Command from '../utils/types/command.js';
+import {Command} from '../utils/types/command.js';
 import data from '../data/factions.json' with { type: 'json' };
 
 const list_factions: Command<ChatInputCommandInteraction> = {
@@ -13,7 +13,7 @@ const list_factions: Command<ChatInputCommandInteraction> = {
 	},
 };
 
-function build_list_faction_embedded(list_of_factions: {name: string, emoji: string}[]): InteractionReplyOptions{
+function build_list_faction_embedded(list_of_factions: { name: string, emoji: string }[]): InteractionReplyOptions {
 	const embedded_message = new EmbedBuilder()
 	embedded_message.setTitle("List of Factions")
 	embedded_message.setDescription(list_of_factions.map((value => ":" + value.emoji + ": " + value.name)).join("\n"))

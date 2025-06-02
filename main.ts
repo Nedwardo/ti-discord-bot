@@ -1,7 +1,9 @@
-import { REST, Routes, Client, GatewayIntentBits, Events } from 'discord.js';
+import { REST, Routes, Client, GatewayIntentBits, Events, Interaction } from 'discord.js';
 import { TOKEN, CLIENT_ID } from './env.js';
 import clear_existing_commands from './utils/clear_existing_commands.js';
 import getCommands from './utils/commands.js';
+import {AutoCompleteCommand} from './utils/types/command.js'
+import admins from "./data/admins.json" with {type: "json"}
 
 
 const rest = new REST().setToken(TOKEN);
@@ -19,7 +21,6 @@ client.once(Events.ClientReady, readyClient => {
 });
 
 const commands = await getCommands();
-
 await rest.put(
 	Routes.applicationCommands(CLIENT_ID),
 	{ body: Array.from(commands.values()).map(command => command.command_metadata.toJSON()) }).then(
@@ -28,18 +29,44 @@ await rest.put(
 
 
 client.on(Events.InteractionCreate, async interaction => {
-	if (!interaction.isChatInputCommand()) return;
-	const command = commands.get(interaction.commandName);
-
-
-	if (!command) {
-		console.error(`No command matching ${interaction.commandName} was found.`);
-		return;
+	if (!admins.includes(interaction.user.id)) return;
+	if (interaction.isChatInputCommand()){
+		const command = commands.get(interaction.commandName);
+		if (!command) {
+			console.error(`No command matching ${interaction.commandName} was found.`);
+			return;
+		}
+		if (!command.interaction_type_checker(interaction)){
+			console.error(`Type of interaction was incorrect, `);
+		}
+		try{
+			command.execute(interaction);
+		} catch (error){
+			console.error(error)
+		}
 	}
-	if (!command.interaction_type_checker(interaction)){
-		console.error(`Type of interaction was incorrect, `);
+	else if (interaction.isAutocomplete()){
+		const command = commands.get(interaction.commandName ?? "");
+		if (!command){
+			console.error(`No command matching ${interaction.commandName} was found.`);
+			return;
+		}
+		if (!command.interaction_type_checker(interaction)){
+			console.error(`Type of interaction was incorrect, `);
+		}
+		// console.log(interaction.command)
+		// console.log(interaction.command?.name)
+		// console.log(interaction.commandName)
+		try{
+			(command as AutoCompleteCommand<Interaction>).auto_complete_update(interaction);
+		} catch (error){
+			console.error(error)
+		}
+
 	}
-	command.execute(interaction);
+
 });
 
 client.login(TOKEN);
+
+// Events.MessageUpdate

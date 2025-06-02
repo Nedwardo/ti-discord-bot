@@ -24,6 +24,6 @@
     "strictNullChecks": true,
     "strictFunctionTypes": true
   },
-  "include": ["*.ts", "**/*.ts", "env.*"],
-  "exclude": ["node_modules"]
+  "include": ["**/*.ts", "env.*"],
+  "exclude": ["node_modules", "dist"]
 }

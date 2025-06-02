@@ -1,7 +1,10 @@
-import { Interaction, SlashCommandBuilder } from 'discord.js';
+import { AutocompleteInteraction, Interaction, SlashCommandOptionsOnlyBuilder } from 'discord.js';
 
-export default interface Command<T extends Interaction> {
+export type Command<T extends Interaction> = {
 	interaction_type_checker: (interaction: Interaction) => boolean
-	command_metadata: SlashCommandBuilder,
+	command_metadata: SlashCommandOptionsOnlyBuilder,
 	execute: (interaction: T) => void
 }
+export type AutoCompleteCommand<T extends Interaction> = Command<T> & {
+	auto_complete_update: (interaction: AutocompleteInteraction) => void;
+};

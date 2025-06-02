@@ -4,7 +4,9 @@
     "description": "nedwardo_ti_discord_bot is a Bot that operates reporting of ti games.",
     "main": "main.js",
     "dependencies": {
-        "discord.js": "^14.19.3"
+        "date-fns": "^4.1.0",
+        "discord.js": "^14.19.3",
+        "uuid": "^11.1.0"
     },
     "type": "module",
     "scripts": {
