@@ -26,10 +26,5 @@ export default function get_player_stats(): PlayerStats[]{
             games_played: positions_in_games.length
         })
     })
-
-    player_stats.sort((lhs, rhs) => {
-        return lhs.average_points - rhs.average_points;
-    })
-
     return player_stats
 }
