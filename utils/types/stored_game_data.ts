@@ -1,17 +1,19 @@
 import { format, parse } from 'date-fns';
+import z from 'zod/v4';
 
 export type GameData = {
     game_id: string;
     game_date: Date;
-    player_count: Number;
+    player_count: number;
 }
 
+export const StoredGameDataZod = z.object({
+    game_id: z.string(),
+    game_date: z.string(),
+    player_count: z.number()
+})
 
-export type StoredGameData = {
-    game_id: string;
-    game_date: string;
-    player_count: Number;
-}
+export type StoredGameData = z.infer<typeof StoredGameDataZod>
 
 const date_format = "dd/MM/yyy"
 

@@ -1,10 +1,11 @@
 import { ChatInputCommandInteraction, EmbedBuilder, InteractionReplyOptions, SlashCommandBuilder } from 'discord.js';
 import {Command} from '../utils/types/command.js';
 import PlayerStats from '../utils/types/player_stats.js';
-import get_player_stats from '../utils/player_stats_generator.js';
+import get_player_stats from '../utils/data_utils/player_stats_generator.js';
 
 const leaderboard: Command<ChatInputCommandInteraction> = {
 	interaction_type_checker: (interaction) => interaction.isChatInputCommand(),
+	admin_only_command: false,
 	command_metadata: new SlashCommandBuilder()
 		.setName('leaderboard')
 		.setDescription('Shows leaderboard of people\'s placement in TI games'),

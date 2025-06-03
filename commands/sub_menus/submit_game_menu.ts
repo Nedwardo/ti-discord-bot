@@ -4,7 +4,7 @@ import factions from "../../data/factions.json" with {type: "json"}
 import PlayerGameData from "../../utils/types/player_game_data.js";
 import is_string_numeric from "../../utils/is_string_numeric.js";
 import Result from "../../utils/types/result.js";
-import add_game_data_to_data from "../../utils/add_game_data_to_data.js";
+import store_game_data from "../../utils/data_utils/store_game_data.js";
 import { parse } from 'date-fns';
 
 function submit_game_slash_command(player_count: number): SlashCommandBuilder {
@@ -14,28 +14,27 @@ function submit_game_slash_command(player_count: number): SlashCommandBuilder {
 
     command.addStringOption(
         game_date => game_date.setName("game_date")
-        .setDescription("Date of the game in DD-MM-YY format")
-        // .setRequired(true)
+        .setDescription("Date of the game in dd-MM-yy format")
+        .setRequired(true)
     )
     for (let player_index = 1; player_index <= player_count; player_index++) {
         command.addUserOption(
             player_select => player_select.setName("player_"+player_index+"_discord_name")
             .setDescription("Choose the discord account of the player in this position")
-            // .setRequired(true)
+            .setRequired(true)
         );
 
         command.addStringOption(player_position =>
             player_position.setName("player_" + player_index + "_metrics")
                 .setDescription("The player's ranking at the end of the game, their points scored, their T0 speaker order")
-                // .setRequired(true)
+                .setRequired(true)
         );
 
         command.addStringOption(faction_choice =>
             faction_choice.setName("player_" + player_index + "_faction_choice")
                 .setDescription("The faction the player is using please use emoji as discord is cringe")
-                // .setChoices(...get_reduced_faction_list(factions))
                 .setAutocomplete(true)
-                // .setRequired(true)
+                .setRequired(true)
         )
     }
     return command
@@ -58,10 +57,9 @@ function generate_execute_method(player_count: number): (interaction: ChatInputC
             return;
         }
 
-        add_game_data_to_data(game_data_result.data);
+        store_game_data(game_data_result.data);
         interaction.reply({
-            content: "wowee, you didn't fuck it up (still doesn't work yet)",
-            // components: [new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(submit_game_select_menu(player_count))]
+            content: "Data stored??",
         });
     }
 }
@@ -73,15 +71,8 @@ function get_game_data_from_command_input(interaction: ChatInputCommandInteracti
     var metrics: string | null;
     var list_metrics: string[] = []
     var list_numerical_metrics: number[] = []
-    // var faction = "";
 
-    const date_string =  interaction.options.getString("game_date")
-    if (!date_string){
-        return {
-            _tag: "Failure",
-            error: "Null date for was submitted, full response object:\n```" + interaction.options + "```"
-        }
-    }
+    const date_string =  interaction.options.getString("game_date", true)
     const date = parse(date_string, "dd-MM-yy", Date())
     if (!date){
         return {
@@ -91,15 +82,9 @@ function get_game_data_from_command_input(interaction: ChatInputCommandInteracti
     }
 
     for (let player_index = 1; player_index <= player_count; player_index++) {
-        metrics = interaction.options.getString("player_" + player_index + "_metrics")
-        if (!metrics){
-            return {
-                _tag: "Failure",
-                error: "Null metrics for player " + player_index + " was submitted, full response object:\n```" + interaction.options + "```"
-            }
-        }
+        metrics = interaction.options.getString("player_" + player_index + "_metrics", true)
 
-        list_metrics = metrics.split(", ")
+        list_metrics = metrics.replace(" ", "").split(",")
         if (!list_metrics.map(is_string_numeric).reduce((previousValue, currentValue) => previousValue && currentValue))
             return {
                 _tag: "Failure",
@@ -107,22 +92,9 @@ function get_game_data_from_command_input(interaction: ChatInputCommandInteracti
             }
         list_numerical_metrics = list_metrics.map(Number)
 
-        player = interaction.options.getUser("player_"+player_index+"_discord_name")
-        if (!player){
-            return {
-                _tag: "Failure",
-                error: "Null player for player " + player_index + " was submitted, full response object:\n```" + interaction.options + "```"
-            }
-        }
-        
-        faction = interaction.options.getString("player_"+player_index+"_discord_name")
-        if (!faction){
-            return {
-                _tag: "Failure",
-                error: "Null metrics for faction " + player_index + " was submitted, full response object:\n```" + interaction.options + "```"
-            }
-        }
-        
+        player = interaction.options.getUser("player_"+player_index+"_discord_name", true)
+        faction = interaction.options.getString("player_"+player_index+"_faction_choice", true)
+
         // TODO add better metrics and faction validation
         player_data.push({
             player: player,
@@ -144,9 +116,9 @@ function get_game_data_from_command_input(interaction: ChatInputCommandInteracti
 export default function submit_game_menu(player_count: number): AutoCompleteCommand<ChatInputCommandInteraction> {
     return {
         interaction_type_checker: (interaction) => {
-            console.log(interaction);
             return interaction.isChatInputCommand() || interaction.isAutocomplete();
         },
+        admin_only_command: true,
         command_metadata: submit_game_slash_command(player_count),
         execute: generate_execute_method(player_count),
         async auto_complete_update(interaction) {

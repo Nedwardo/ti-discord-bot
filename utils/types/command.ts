@@ -1,7 +1,8 @@
 import { AutocompleteInteraction, Interaction, SlashCommandOptionsOnlyBuilder } from 'discord.js';
 
 export type Command<T extends Interaction> = {
-	interaction_type_checker: (interaction: Interaction) => boolean
+	interaction_type_checker: (interaction: Interaction) => boolean,
+	admin_only_command: boolean,
 	command_metadata: SlashCommandOptionsOnlyBuilder,
 	execute: (interaction: T) => void
 }

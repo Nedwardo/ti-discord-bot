@@ -4,11 +4,11 @@ import data from '../data/factions.json' with { type: 'json' };
 
 const list_factions: Command<ChatInputCommandInteraction> = {
 	interaction_type_checker: (interaction) => interaction.isChatInputCommand(),
+	admin_only_command: false,
 	command_metadata: new SlashCommandBuilder()
 		.setName('list_factions')
 		.setDescription('Lists all TI factions, including ds'),
 	async execute(interaction) {
-		console.log(data);
 		await interaction.reply(build_list_faction_embedded(data));
 	},
 };

@@ -1,14 +1,12 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { Collection, Interaction } from 'discord.js';
-import {Command} from './types/command.js';
+import {Command} from '../types/command.js';
 import { fileURLToPath } from 'url';
 
 async function getCommands() {
 	const commands = new Collection<string, Command<Interaction>>();
-	const dirname = path.parse(path.dirname(fileURLToPath(import.meta.url))).dir;
-	const commandsPath = path.join(dirname, 'commands');
-
+	const commandsPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "commands");
 
 	const commandFiles = (await fs.readdir(commandsPath)).filter(
 		(filename) => filename.endsWith(".ts") || filename.endsWith(".js")

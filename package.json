@@ -4,9 +4,11 @@
     "description": "nedwardo_ti_discord_bot is a Bot that operates reporting of ti games.",
     "main": "main.js",
     "dependencies": {
+        "adm-zip": "^0.5.16",
         "date-fns": "^4.1.0",
         "discord.js": "^14.19.3",
-        "uuid": "^11.1.0"
+        "uuid": "^11.1.0",
+        "zod": "^3.25.49"
     },
     "type": "module",
     "scripts": {
@@ -22,12 +24,14 @@
     "license": "OSL-3.0",
     "devDependencies": {
         "@eslint/js": "^9.26.0",
+        "@types/adm-zip": "^0.5.7",
         "@typescript-eslint/eslint-plugin": "^8.32.0",
         "@typescript-eslint/parser": "^8.32.0",
         "eslint": "^9.26.0",
         "eslint-config-prettier": "^10.1.5",
         "eslint-plugin-prettier": "^5.4.0",
         "prettier": "^3.5.3",
+        "ts-node": "^10.9.2",
         "typescript": "^5.8.3",
         "typescript-eslint": "^8.32.0"
     },
