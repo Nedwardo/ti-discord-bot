@@ -1,4 +1,4 @@
-export default interface PlayerStats {
+export default interface PlayerData {
     player_id: string,
     average_points: number,
     average_placement: number,

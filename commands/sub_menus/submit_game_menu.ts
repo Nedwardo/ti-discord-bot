@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, User} from "discord.js";
 import {AutoCompleteCommand} from "../../utils/types/command.js";
 import factions from "../../data/factions.json" with {type: "json"}
-import PlayerGameData from "../../utils/types/player_game_data.js";
+import GamePlayerData from "../../utils/types/game_player_data.js";
 import is_string_numeric from "../../utils/is_string_numeric.js";
 import Result from "../../utils/types/result.js";
 import store_game_data from "../../utils/data_utils/store_game_data.js";
@@ -64,8 +64,8 @@ function generate_execute_method(player_count: number): (interaction: ChatInputC
     }
 }
 
-function get_game_data_from_command_input(interaction: ChatInputCommandInteraction, player_count: number): Result<{player_data: PlayerGameData[], date: Date}, string> {
-    const player_data: PlayerGameData[] = [];
+function get_game_data_from_command_input(interaction: ChatInputCommandInteraction, player_count: number): Result<{player_data: GamePlayerData[], date: Date}, string> {
+    const player_data: GamePlayerData[] = [];
     var player: User | null;
     var faction: string | null;
     var metrics: string | null;

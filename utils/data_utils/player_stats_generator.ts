@@ -1,19 +1,19 @@
-import PlayerStats from '../types/player_stats.js'
-import { read_game_player_stats } from './persistent_store.js';
+import PlayerData from '../types/player_stats.js'
+import { data } from './persistent_store.js';
 
-export default function get_player_stats(): PlayerStats[]{
-    const player_games_map = new Map<string, PlayerStats[]>();
-    const player_stats: PlayerStats[] = [];
+export default function get_player_stats(): PlayerData[]{
+    const player_games_map = new Map<string, PlayerData[]>();
+    const player_stats: PlayerData[] = [];
 
-    read_game_player_stats().forEach((game_player) => {
-        if (!player_games_map.has(game_player.player_id)){
-            player_games_map.set(game_player.player_id, [])
+    data.game_player_data.get().forEach((game_player_stats) => {
+        if (!player_games_map.has(game_player_stats.player_id)){
+            player_games_map.set(game_player_stats.player_id, [])
         }
-        player_games_map.get(game_player.player_id)?.push(
+        player_games_map.get(game_player_stats.player_id)?.push(
             {
-                player_id: game_player.player_id,
-                average_points: game_player.points,
-                average_placement: game_player.ranking,
+                player_id: game_player_stats.player_id,
+                average_points: game_player_stats.points,
+                average_placement: game_player_stats.ranking,
                 games_played: 1
             });
     })

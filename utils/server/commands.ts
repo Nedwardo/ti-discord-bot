@@ -11,7 +11,7 @@ async function getCommands() {
 	const commandFiles = (await fs.readdir(commandsPath)).filter(
 		(filename) => filename.endsWith(".ts") || filename.endsWith(".js")
 	).map(
-		(filename: string) => filename.replace('/\.ts$/', '.js')
+		(filename: string) => filename.replace('/.ts$/', '.js')
 	);
 
 	for (const commandFile of commandFiles) {

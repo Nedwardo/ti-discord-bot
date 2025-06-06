@@ -1,77 +1,54 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, unlinkSync, rmSync } from 'fs'
-import StoredPlayerData, { StoredPlayerDataZod } from "../types/stored_player_data.js"
-import StoredGamePlayerStats, { StoredGamePlayerStatsZod } from "../types/stored_game_player_stats.js"
-import { StoredGameData, StoredGameDataZod } from '../types/stored_game_data.js'
+import { mkdirSync, readFileSync, writeFileSync, renameSync, unlinkSync, rmSync, existsSync } from 'fs'
+import PlayerData, { PlayerDataZod } from "../types/player_data.js"
+import { StoredGameData, StoredGameDataZod } from '../types/game_data.js'
 import Result from '../types/result.js'
 import AdmZip from 'adm-zip'
 import z from 'zod/v4'
+import Faction, {FactionZod} from '../types/faction.js'
+import { StoredGamePlayerData, StoredGamePlayerDataZod } from '../types/game_player_data.js'
 
 const data_dir = "./data/";
+class CachedFile<T>{
+    file_path: string;
+    content: T[] | null;
+    zodType: z.ZodType<T>
 
-const files = {
-    admins: data_dir + 'admins.json',
-    factions: data_dir + 'factions.json',
-    games: data_dir + 'games.json',
-    game_player_stats: data_dir + 'game_player_stats.json',
-    players: data_dir + 'players.json',
-}
+    constructor(file_path: string, zodType: z.ZodType<T>){
+        this.file_path = file_path
+        this.content = null;
+        this.zodType = zodType
+    }
 
-export function read_admins(): string[]{
-    const data = readFileSync(files.admins, 'utf8')
-    const jsonContent = JSON.parse(data)
+    get(): T[]{
+        if (this.content !== null){return this.content}
+        const data = readFileSync(this.file_path, 'utf8')
+        const jsonContent = JSON.parse(data)
+        this.content = jsonContent as T[];
 
-    return jsonContent as string[]
-}
+        return this.content
+    }
+    set(content: T[]): void{
+        this.content = content
+        writeFileSync(this.file_path, JSON.stringify(this.content, null, 4))
+    }
+    add(value: T): void{
+        if (this.content === null) {this.content = this.get()}
+        this.content.push(value);
+        this.set(this.content)
+    }
+    validate_content() {
+        return validate_object_is_list_of_objects<T[]>(this.get(), this.zodType)
+    }
 
-export function write_admins(admins: string[]): void{
-    writeFileSync(files.admins, JSON.stringify(admins, null, 4))
-}
+};
 
-export function read_factions(): string[]{
-    const data = readFileSync(files.factions, 'utf8')
-    const jsonContent = JSON.parse(data)
-
-    return jsonContent as string[]
-}
-
-export function write_factions(factions: string[]): void{
-    writeFileSync(files.factions, JSON.stringify(factions, null, 4))
-}
-
-export function read_games(): StoredGameData[]{
-    const data = readFileSync(files.games, 'utf8')
-    const jsonContent = JSON.parse(data)
-
-    return jsonContent as StoredGameData[]
-}
-
-export function write_games(games: StoredGameData[]): void{
-    writeFileSync(files.games, JSON.stringify(games, null, 4))
-}
-
-
-export function read_game_player_stats(): StoredGamePlayerStats[]{
-    const data = readFileSync(files.game_player_stats, 'utf8')
-    const jsonContent = JSON.parse(data)
-
-    return jsonContent as StoredGamePlayerStats[]
-}
-
-export function write_game_player_stats(game_player_stats: StoredGamePlayerStats[]): void{
-    writeFileSync(files.game_player_stats, JSON.stringify(game_player_stats, null, 4))
-}
-
-export function read_players(): StoredPlayerData[]{
-    const data = readFileSync(files.players, 'utf8')
-    const jsonContent = JSON.parse(data)
-
-    return jsonContent as StoredPlayerData[]
-}
-
-export function write_players(players: StoredPlayerData[]): void{
-    writeFileSync(files.players, JSON.stringify(players, null, 4))
-}
-
+export const data = {
+    admins: new CachedFile<string>(data_dir + 'admins.json', z.string()),
+    factions: new CachedFile<Faction>(data_dir + 'factions.json', FactionZod),
+    games: new CachedFile<StoredGameData>(data_dir + 'games.json', StoredGameDataZod),
+    game_player_data: new CachedFile<StoredGamePlayerData>(data_dir + 'game_player_stats.json', StoredGamePlayerDataZod),
+    players: new CachedFile<PlayerData>(data_dir + 'players.json', PlayerDataZod),
+};
 
 export function dump_state_as_buffer(): Result<Buffer, string>{
     const validation_result = validate_stored_state()
@@ -79,7 +56,7 @@ export function dump_state_as_buffer(): Result<Buffer, string>{
 
     const zip = new AdmZip();
 
-    Object.values(files).forEach(path => zip.addLocalFile(path))
+    Object.values(data).forEach(cached_file => zip.addLocalFile(cached_file.file_path))
 
     return {
         _tag: "Success",
@@ -110,13 +87,17 @@ export function load_state_from_buffer(zip_file_buffer: Buffer): Result<null, st
         mkdirSync(temporary_data_dir);
     }
 
-    Object.values(files).forEach(path => renameSync(path, path.replace(data_dir, temporary_data_dir)))
+    Object.values(data).forEach(cached_file => 
+        renameSync(cached_file.file_path, cached_file.file_path.replace(data_dir, temporary_data_dir))
+    )
 
     zip.extractAllTo(data_dir)
     const validation_result = validate_stored_state()
     if (validation_result._tag === "Failure"){
-        Object.values(files).forEach(path => unlinkSync(path))
-        Object.values(files).forEach(path => renameSync(path.replace(data_dir, temporary_data_dir), path))
+        Object.values(data).forEach(cached_file => unlinkSync(cached_file.file_path))
+        Object.values(data).forEach(cached_file => 
+            renameSync(cached_file.file_path.replace(data_dir, temporary_data_dir), cached_file.file_path)
+        )
         rmSync(temporary_data_dir, { recursive: true, force: true });
         return validation_result;
     }
@@ -128,23 +109,16 @@ export function load_state_from_buffer(zip_file_buffer: Buffer): Result<null, st
     };
 }
 
+
 export function validate_stored_state(): Result<null, string>{
     const failures = new Map<String, z.ZodError>();
-    const admin_result = validate_json_is_list_of_object(files.admins, z.string());
-    if (admin_result._tag === "Failure") { failures.set(files.admins, admin_result.error) };
 
-    const factions_result = validate_json_is_list_of_object(files.factions, z.string());
-    if (factions_result._tag === "Failure") { failures.set(files.factions, factions_result.error) };
-
-    const games_result = validate_json_is_list_of_object(files.games, StoredGameDataZod);
-    if (games_result._tag === "Failure") { failures.set(files.games, games_result.error) };
-
-    const game_player_stats_result = validate_json_is_list_of_object(files.game_player_stats, StoredGamePlayerStatsZod);
-    if (game_player_stats_result._tag === "Failure") { failures.set(files.game_player_stats, game_player_stats_result.error) };
-
-    const players_result = validate_json_is_list_of_object(files.players, StoredPlayerDataZod);
-    if (players_result._tag === "Failure") { failures.set(files.players, players_result.error) };
-
+    Object.values(data).forEach(
+        (cached_file) => {
+            const result = cached_file.validate_content();
+            if (result._tag === "Failure") { failures.set(cached_file.file_path, result.error) };
+        }
+    )
 
     if ( Object.keys(failures).length === 0 ){
         return {
@@ -165,14 +139,11 @@ export function validate_stored_state(): Result<null, string>{
 
 }
 
-function validate_json_is_list_of_object(path: string, type: z.ZodObject |  z.ZodString): Result<null, z.ZodError>{
-    const data = readFileSync(path, 'utf8')
-    const jsonContent = JSON.parse(data)
-
+function validate_object_is_list_of_objects<T>(content: T, type: z.ZodType): Result<null, z.ZodError>{
     const schema = z.array(type)
 
     try {
-        schema.parse(jsonContent);
+        schema.parse(content);
     } catch (error) {
         return {
             _tag: 'Failure',
@@ -185,3 +156,5 @@ function validate_json_is_list_of_object(path: string, type: z.ZodObject |  z.Zo
         data: null
     }
 }
+
+export default data;

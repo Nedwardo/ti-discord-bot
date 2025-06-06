@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 import {Command} from '../utils/types/command.js';
-import { read_admins, write_admins } from '../utils/data_utils/persistent_store.js';
+import  data from '../utils/data_utils/persistent_store.js';
 import Result from '../utils/types/result.js';
 
 const add_admin_command: Command<ChatInputCommandInteraction> = {
@@ -43,7 +43,7 @@ function save_new_admin(new_admin_id: string | undefined): Result<string, string
         };
     }
 
-    var admin_ids = read_admins()
+    var admin_ids = data.admins.get()
     if (admin_ids.includes(new_admin_id)){
          return {
             _tag: "Failure",
@@ -52,7 +52,7 @@ function save_new_admin(new_admin_id: string | undefined): Result<string, string
     }
 
     admin_ids.push(new_admin_id)
-    write_admins(admin_ids)
+    data.admins.set(admin_ids)
     return {
         _tag: "Success",
         data: "Admin: <@" + new_admin_id + "> added"

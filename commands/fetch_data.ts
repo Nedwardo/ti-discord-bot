@@ -1,6 +1,6 @@
 import { AttachmentBuilder, ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 import {Command} from '../utils/types/command.js';
-import { dump_state_as_buffer as dump_state_as_buffer } from '../utils/data_utils/persistent_store.js';
+import { dump_state_as_buffer } from '../utils/data_utils/persistent_store.js';
 
 
 const fetch_data_command: Command<ChatInputCommandInteraction> = {

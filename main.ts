@@ -3,7 +3,7 @@ import { TOKEN, CLIENT_ID, GUILD_ID } from './env.js';
 import clear_existing_commands from './utils/server/clear_existing_commands.js';
 import getCommands from './utils/server/commands.js';
 import {AutoCompleteCommand} from './utils/types/command.js'
-import { read_admins } from './utils/data_utils/persistent_store.js';
+import data from './utils/data_utils/persistent_store.js';
 
 
 const rest = new REST().setToken(TOKEN);
@@ -28,7 +28,7 @@ await rest.put(
 ).catch(console.error);
 
 client.on(Events.InteractionCreate, async interaction => {
-	const admin = read_admins().includes(interaction.user.id);
+	const admin = data.admins.get().includes(interaction.user.id);
 	if (interaction.isChatInputCommand()){
 		const command = commands.get(interaction.commandName);
 		if (!command) {

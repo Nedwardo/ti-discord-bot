@@ -1,10 +1,10 @@
-import PlayerGameData from "../types/player_game_data.js";
+import GamePlayerData, { StoredGamePlayerData } from "../types/game_player_data.js";
 import { v4 as uuid } from 'uuid';
-import { convert_game_data_to_stored_game_data, GameData } from "../types/stored_game_data.js";
+import { convert_game_data_to_stored_game_data, GameData } from "../types/game_data.js";
 import { User } from "discord.js";
-import { read_game_player_stats, read_games, read_players, write_game_player_stats, write_games, write_players } from "./persistent_store.js";
+import data from "./persistent_store.js";
 
-function store_game_data(game: {player_data: PlayerGameData[], date: Date}): void {
+function store_game_data(game: {player_data: GamePlayerData[], date: Date}): void {
     const game_id = uuid()
     const player_count = game.player_data.length
     const game_date = game.date
@@ -14,15 +14,11 @@ function store_game_data(game: {player_data: PlayerGameData[], date: Date}): voi
 }
 
 function store_game(game_data: GameData): void {
-    const existing_games = read_games();
-
-    existing_games.push(convert_game_data_to_stored_game_data(game_data))
-
-    write_games(existing_games)
+    data.games.add(convert_game_data_to_stored_game_data(game_data))
 }
 
 function store_new_players(users: User[]): void{
-    var players = read_players();
+    var players = data.players.get();
 
     const existing_id_to_index_map = new Map<string, number>();
     players.forEach((existing_player, index) => {
@@ -43,21 +39,21 @@ function store_new_players(users: User[]): void{
 
     players = players.sort((a, b) => a.name > b.name ? 1 : -1 )
 
-    write_players(players)
+    data.players.set(players)
 }
 
-function store_game_player_stats(game_id: string, player_data: PlayerGameData[]): void{
-    var existing_player_stats = read_game_player_stats();
+function store_game_player_stats(game_id: string, player_data: GamePlayerData[]): void{
+    var existing_player_data = data.game_player_data.get()
 
-    const new_player_stats= player_data.map(({player, ...rest}) => ({
+    const new_player_stats = player_data.map(({player: player_id, ...rest}) => ({
         ...rest,
         game_id: game_id,
-        player_id: player.id
-    }))
+        player_id: player_id.id
+    })) as StoredGamePlayerData[];
 
-    const player_stats = [...existing_player_stats, ...new_player_stats]
+    const player_stats = [...existing_player_data, ...new_player_stats]
 
-    write_game_player_stats(player_stats)
+    data.game_player_data.set(player_stats)
 }
 
 export default store_game_data;
