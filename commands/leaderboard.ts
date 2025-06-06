@@ -99,25 +99,5 @@ function stringify_column_row(row_as_list: readonly (string | number)[], expecte
 	);
 }
 
-// function build_leaderboard_embedded(all_player_stats: PlayerStats[]): InteractionReplyOptions {
-// 	// Commented out as you can only have 3 in line columns for some stupid reason
-	// all_player_stats.sort((lhs, rhs) => {
-	// 	return lhs.average_points - rhs.average_points;
-	// });
-	// all_player_stats.reverse();
-// 	const embedded_message = new EmbedBuilder()
-// 	embedded_message.setTitle("Anti Ellie Propaganda Enthusiasts Leaderboard")
-// 	embedded_message.addFields(
-// 		{ name: "Name", value: all_player_stats.map((value) => "<@" + value.player_id + ">").join("\n"), inline: true },
-// 		{ name: "Average Points", value: all_player_stats.map((value) => value.average_points).join("\n"), inline: true },
-// 		{ name: "Average Placement", value: all_player_stats.map((value) => value.average_placement).join("\n"), inline: true },
-// 		{ name: "Games Played", value: all_player_stats.map((value) => value.games_played).join("\n"), inline: true },
-// 	)
-
-// 	return {
-// 		embeds: [embedded_message]
-// 	}
-// }
-
 
 export default leaderboard;
