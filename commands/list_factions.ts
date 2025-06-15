@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, EmbedBuilder, InteractionReplyOptions, SlashCommandBuilder } from 'discord.js';
-import {Command} from '../utils/types/command.js';
+import { Command } from '../utils/types/command.js';
 import data from '../utils/data_utils/persistent_store.js';
 import Faction from '../utils/types/faction.js';
 

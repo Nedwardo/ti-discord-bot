@@ -5,12 +5,14 @@ export type GameData = {
     game_id: string;
     game_date: Date;
     player_count: number;
+    points_to_win: number;
 }
 
 export const StoredGameDataZod = z.object({
     game_id: z.string(),
     game_date: z.string(),
-    player_count: z.number()
+    player_count: z.number(),
+    points_to_win: z.number()
 })
 
 export type StoredGameData = z.infer<typeof StoredGameDataZod>

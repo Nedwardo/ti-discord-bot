@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "lib": ["es2022", "DOM"],
-    "target": "ES2022",
+    "lib": ["es2023", "DOM"],
+    "target": "ES2023",
     "module": "NodeNext",
     "strict": true,
     "skipLibCheck": true,

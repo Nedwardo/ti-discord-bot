@@ -7,9 +7,9 @@ import Result from "../../utils/types/result.js";
 import store_game_data from "../../utils/data_utils/store_game_data.js";
 import { parse } from 'date-fns';
 
-function submit_game_slash_command(player_count: number): SlashCommandBuilder {
+function submit_game_slash_command(player_count: number, points_to_win: number): SlashCommandBuilder {
     const command = new SlashCommandBuilder()
-        .setName("submit_" + player_count+"_player_game")
+        .setName("submit_" + points_to_win + "_points_" + player_count+"_player_game")
         .setDescription('Submits a game with ' + player_count + ' players, to the record');
 
     command.addStringOption(
@@ -47,9 +47,9 @@ function get_reduced_faction_list(faction_list: {name: string, emoji: string}[],
         .filter((_element, index) => (index % Math.ceil(factions.length / max_length)) == 0)
 }
 
-function generate_execute_method(player_count: number): (interaction: ChatInputCommandInteraction) => void {
+function generate_execute_method(player_count: number, points_to_win: number): (interaction: ChatInputCommandInteraction) => void {
     return (interaction: ChatInputCommandInteraction) => {
-        const game_data_result = get_game_data_from_command_input(interaction, player_count);
+        const game_data_result = get_game_data_from_command_input(interaction, player_count, points_to_win);
         if (game_data_result._tag == "Failure"){
             interaction.reply({
                 content: "Bad data was submitted, error message:\n" + game_data_result.error + "\n\ncomplain to <@99778758059237376>"
@@ -64,7 +64,7 @@ function generate_execute_method(player_count: number): (interaction: ChatInputC
     }
 }
 
-function get_game_data_from_command_input(interaction: ChatInputCommandInteraction, player_count: number): Result<{player_data: GamePlayerData[], date: Date}, string> {
+function get_game_data_from_command_input(interaction: ChatInputCommandInteraction, player_count: number, points_to_win: number): Result<{player_data: GamePlayerData[], date: Date, points_to_win: number}, string> {
     const player_data: GamePlayerData[] = [];
     var player: User | null;
     var faction: string | null;
@@ -107,20 +107,20 @@ function get_game_data_from_command_input(interaction: ChatInputCommandInteracti
     }
     return {
         _tag: "Success",
-        data: {player_data: player_data, date: date}
+        data: {player_data: player_data, date: date, points_to_win: points_to_win}
     }
 }
 
 
 
-export default function submit_game_menu(player_count: number): AutoCompleteCommand<ChatInputCommandInteraction> {
+export default function submit_game_menu(player_count: number, points_to_win: number): AutoCompleteCommand<ChatInputCommandInteraction> {
     return {
         interaction_type_checker: (interaction) => {
             return interaction.isChatInputCommand() || interaction.isAutocomplete();
         },
         admin_only_command: true,
-        command_metadata: submit_game_slash_command(player_count),
-        execute: generate_execute_method(player_count),
+        command_metadata: submit_game_slash_command(player_count, points_to_win),
+        execute: generate_execute_method(player_count, points_to_win),
         async auto_complete_update(interaction) {
             const focused_value = interaction.options.getFocused();
             const reduced_factions = get_reduced_faction_list(factions, focused_value)

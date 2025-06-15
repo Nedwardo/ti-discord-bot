@@ -3,8 +3,13 @@ import { TOKEN, CLIENT_ID, GUILD_ID } from './env.js';
 import clear_existing_commands from './utils/server/clear_existing_commands.js';
 import getCommands from './utils/server/commands.js';
 import {AutoCompleteCommand} from './utils/types/command.js'
-import data from './utils/data_utils/persistent_store.js';
+import data, { validate_stored_state } from './utils/data_utils/persistent_store.js';
 
+const state = validate_stored_state();
+
+if (state._tag === "Failure"){
+	throw state.error;
+}
 
 const rest = new REST().setToken(TOKEN);
 await clear_existing_commands(rest);

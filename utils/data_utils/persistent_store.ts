@@ -120,7 +120,7 @@ export function validate_stored_state(): Result<null, string>{
         }
     )
 
-    if ( Object.keys(failures).length === 0 ){
+    if ( failures.size === 0 ){
         return {
             _tag: "Success",
             data: null
@@ -129,7 +129,7 @@ export function validate_stored_state(): Result<null, string>{
 
     var error_message = ""
     failures.forEach((value, key) =>{
-        error_message += "file: " + key + "gave error:\n" + value.issues +"\n"
+        error_message += "file: " + key + " gave error:\n" + value +"\n"
     });
 
     return {
