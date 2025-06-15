@@ -6,7 +6,7 @@ import tsParser from '@typescript-eslint/parser';
 export default defineConfig([
 	js.configs.recommended,
 	{
-		files: ['**/*.ts', '**/*.tsx'],
+		files: ['src/**/*.ts', 'src/**/*.tsx'],
 		plugins: {
 			'@typescript-eslint': tseslint,
 		},

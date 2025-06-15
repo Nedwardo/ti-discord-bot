@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, User} from "discord.js";
 import {AutoCompleteCommand} from "../../utils/types/command.js";
-import factions from "../../data/factions.json" with {type: "json"}
+import factions from "../../../data/factions.json" with {type: "json"}
 import GamePlayerData from "../../utils/types/game_player_data.js";
 import is_string_numeric from "../../utils/is_string_numeric.js";
 import Result from "../../utils/types/result.js";
@@ -42,7 +42,7 @@ function submit_game_slash_command(player_count: number, points_to_win: number):
 
 
 function get_reduced_faction_list(faction_list: {name: string, emoji: string}[], sub_string: string = "", max_length: number = 25): {name: string, value: string}[] {
-    return faction_list.filter(element => element.name.includes(sub_string))
+    return faction_list.filter(element => element.name.toLowerCase().includes(sub_string.toLowerCase()))
         .map(faction => {return {name: faction.name, value: faction.emoji}})
         .filter((_element, index) => (index % Math.ceil(factions.length / max_length)) == 0)
 }

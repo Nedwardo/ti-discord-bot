@@ -6,6 +6,7 @@
     "strict": true,
     "skipLibCheck": true,
     "outDir": "./dist",
+    "rootDir": "./src",
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
     "noStrictGenericChecks": false,
@@ -27,6 +28,6 @@
   "ts-node": {
     "esm": true
   },
-  "include": ["**/*.ts", "env.*"],
+  "include": ["src/**/*.ts", "src/env.*"],
   "exclude": ["node_modules", "dist"]
 }
