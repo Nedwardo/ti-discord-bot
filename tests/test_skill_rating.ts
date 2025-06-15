@@ -1,19 +1,19 @@
 import { describe, test, expect, beforeEach } from '@jest/globals';
-import { RatingSystem, Rating, RatingZod } from '../src/utils/rating_system/skill_rating.ts';
+import { RatingSystem, RatingZod } from '../src/utils/rating_system/skill_rating.js';
 
 describe('Skill Rating System', () => {
   let ratingSystem: RatingSystem;
-  let defaultPlayers: Rating[];
+//   let defaultPlayers: Rating[];
 
   beforeEach(() => {
     ratingSystem = new RatingSystem();
 
-    defaultPlayers = [
-      ratingSystem.new_rating(),
-      ratingSystem.new_rating(),
-      ratingSystem.new_rating(),
-      ratingSystem.new_rating()
-    ];
+    // defaultPlayers = [
+    //   ratingSystem.new_rating(),
+    //   ratingSystem.new_rating(),
+    //   ratingSystem.new_rating(),
+    //   ratingSystem.new_rating()
+    // ];
   });
   
   test('should create RatingSystem with default parameters', () => {
