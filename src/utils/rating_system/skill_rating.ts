@@ -72,7 +72,7 @@ export class RatingSystem{
         const player = players[player_index] as Rating
 
         const omega_normalisation_faction = (player.sigma ** 2) / updating_vars.total_skill_uncertainty;
-        const omega = omega_normalisation_faction * players.map((opponent, opponent_index) => {
+        const omega = players.map((opponent, opponent_index) => {
             if (opponent_index === player_index) return 0;
             if (player_placings[player_index] as number < (player_placings[opponent_index] as number)) return 0;
         
