@@ -7,12 +7,6 @@ export const RatingZod = z.object({
 
 export type Rating = z.infer<typeof RatingZod>;
 
-type UpdatingVars = {
-    total_skill_uncertainty: number;
-    ties_count: number[];
-    gamma: number;
-}
-
 export class RatingSystem{
     mu: number;
     sigma: number;
@@ -43,69 +37,45 @@ export class RatingSystem{
     }
 
     update_player_rankings(players: Rating[], player_placings: number[]): Rating[]{
-        const total_skill_uncertainty = players.map((player_rating) => player_rating.sigma ** 2 + this.beta ** 2).reduce((acc, value) => acc + value) ** 0.5
-        var ties_map = new Map<number, number>();
-        player_placings.forEach((placing) => {
-            if (!ties_map.has(placing)){
-                ties_map.set(placing, 0)
+        /***/
+        // const total_skill_uncertainty = players.map((player_rating) => player_rating.sigma ** 2 + this.beta ** 2).reduce((acc, value) => acc + value) ** 0.5
+
+        const updated_players = players.map((player, player_index) => {
+            const opponent_values = players.map((opponent, opponent_index) => {
+                if (player_index === opponent_index) return {
+                    sigma: 0,
+                    eta: 0
+                };
+
+                const skill_uncertainty = Math.sqrt(player.sigma ** 2 + opponent.sigma ** 2 + 2*(this.beta**2));
+                const probability_of_winning = this._normalise_rating(player.mu, skill_uncertainty) / (this._normalise_rating(player.mu, skill_uncertainty) + this._normalise_rating(opponent.mu, skill_uncertainty))
+                const score =  player_placings[player_index] as number < (player_placings[opponent_index] as number) ? 1 : 0
+                const gamma = player.sigma / skill_uncertainty
+
+                return {
+                    sigma: (((player.sigma ** 2) / skill_uncertainty) * (score - probability_of_winning)),
+                    eta: (gamma * ((player.sigma / skill_uncertainty) ** 2) * probability_of_winning * (1 - probability_of_winning))
+                }
+            }).reduce((acc, value) => ({
+                sigma: acc.sigma + value.sigma,
+                eta: acc.eta + value.eta
+            }))
+            return {
+                mu: player.mu + opponent_values.sigma,
+                sigma: Math.sqrt((player.sigma ** 2) * Math.max(1 - opponent_values.eta, this.kappa))
             }
-            ties_map.set(placing, ties_map?.get(placing) as number + 1)
         })
-        const ties_count = player_placings.map((placing) => ties_map?.get(placing) as number);
-
-        const gamma = players.map((player_rating) => player_rating.sigma ** 2).reduce((acc, value) => acc + value) ** 0.5 / total_skill_uncertainty
-
-
-        const updating_vars = {
-            total_skill_uncertainty: total_skill_uncertainty,
-            ties_count: ties_count,
-            gamma: gamma
-        }
-        const new_rating = players.map((player, index) => ({
-            mu: player.mu + this._calculate_omega(players, player_placings, index, updating_vars),
-            sigma: ((player.sigma ** 2) * Math.max(1 - this._calculate_delta(players, player_placings, index, updating_vars), this.kappa)) ** 0.5
-        }))
-        return new_rating
+        return updated_players
     }
 
-    _calculate_omega(players: Rating[], player_placings: number[], player_index: number, updating_vars: UpdatingVars): number{
-        const player = players[player_index] as Rating
-
-        const omega_normalisation_faction = (player.sigma ** 2) / updating_vars.total_skill_uncertainty;
-        const omega = players.map((opponent, opponent_index) => {
-            if (opponent_index === player_index) return 0;
-            if (player_placings[player_index] as number < (player_placings[opponent_index] as number)) return 0;
-        
-            return - this._calculate_win_probability(player, opponent, updating_vars.total_skill_uncertainty) / (updating_vars.ties_count[opponent_index] as number)
-
-        }).reduce((acc, value) => acc + value)
-        return omega * omega_normalisation_faction;
+    _normalise_rating(skill_value: number, uncertainty: number): number {
+        return Math.E ** (skill_value / uncertainty);
     }
 
-    _calculate_delta(players: Rating[], player_placings: number[], player_index: number, updating_vars: UpdatingVars): number{
-        const player = players[player_index] as Rating
+}
 
-        const delta_normalisation_faction = (updating_vars.gamma * (player.sigma ** 2)) / (updating_vars.total_skill_uncertainty ** 2);
-        const delta = players.map((opponent, opponent_index) => {
-            if (opponent_index === player_index) return 0;
-            if (player_placings[player_index] as number < (player_placings[opponent_index] as number)) return 0;
-
-            const win_probability = this._calculate_win_probability(player, opponent, updating_vars.total_skill_uncertainty)
-
-            return win_probability * (1 - win_probability) / (updating_vars.ties_count[opponent_index] as number)
-
-        }).reduce((acc, value) => acc + value)
-        return delta * delta_normalisation_faction;
-    }
-
-
-    _calculate_win_probability(player: Rating, opponent: Rating, total_skill_uncertainty: number): number {
-        const player_rating = player.mu;
-        const opponent_rating = opponent.mu;
-
-        return (Math.E ** (player_rating / total_skill_uncertainty)) / (Math.E ** (opponent_rating / total_skill_uncertainty))
-    }
-
+export function display_rating(rating: Rating): number{
+    return 50 + (rating.mu - 3 * rating.sigma);
 }
 
 export default RatingSystem;

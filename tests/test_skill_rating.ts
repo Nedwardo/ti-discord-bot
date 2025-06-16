@@ -41,4 +41,42 @@ describe('Skill Rating System', () => {
     // Validate with Zod schema
     expect(() => RatingZod.parse(rating)).not.toThrow();
   });
+
+  test('Two default players should update ratings correctly', () => {
+    const players = [
+      ratingSystem.new_rating(),
+      ratingSystem.new_rating()
+    ];
+
+    const results = [1, 2]
+
+    const new_players = ratingSystem.update_player_rankings(players, results)
+
+    expect(new_players[0].mu).toBeCloseTo(25 + 2.6352);
+    expect(new_players[0].sigma).toBeCloseTo((25/3) * Math.sqrt(1 - 0.063));
+
+    expect(new_players[1].mu).toBeCloseTo(25 - 2.6352);
+    expect(new_players[1].sigma).toBeCloseTo((25/3) * Math.sqrt(1 - 0.063));
+  });
+
+  test('Three default players should update ratings correctly', () => {
+    const players = [
+      ratingSystem.new_rating(),
+      ratingSystem.new_rating(),
+      ratingSystem.new_rating()
+    ];
+
+    const results = [1, 2, 3]
+
+    const new_players = ratingSystem.update_player_rankings(players, results)
+
+    expect(new_players[0].mu).toBeCloseTo(25 + 5.27);
+    expect(new_players[0].sigma).toBeCloseTo(7.79);
+
+    expect(new_players[1].mu).toBeCloseTo(25);
+    expect(new_players[1].sigma).toBeCloseTo(7.79);
+
+    expect(new_players[2].mu).toBeCloseTo(25 - 5.27);
+    expect(new_players[2].sigma).toBeCloseTo(7.79);
+  });
 });

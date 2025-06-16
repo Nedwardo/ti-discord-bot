@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 import {Command} from '../utils/types/command.js';
-import PlayerData from '../utils/types/player_stats.js';
+import PlayerStats from '../utils/types/player_stats.js';
 import get_player_stats from '../utils/data_utils/player_stats_generator.js';
 import get_player_name_from_id from '../utils/data_utils/get_player_name_from_id.js';
 
@@ -13,7 +13,7 @@ const leaderboard: Command<ChatInputCommandInteraction> = {
 	async execute(interaction) {
 		const all_player_stats = get_player_stats();
 		all_player_stats.sort((lhs, rhs) => {
-			return lhs.average_points - rhs.average_points;
+			return lhs.displayed_rating - rhs.displayed_rating;
 		});
 		all_player_stats.reverse();
 		await interaction.reply({
@@ -22,10 +22,11 @@ const leaderboard: Command<ChatInputCommandInteraction> = {
 	},
 };
 
-function build_ascii_leader_board(all_player_stats: PlayerData[]): string {
-	const columns = ["Name", "Average Points", "Average Placement", "Games Played"] as const;
-	const column_to_property_mapping: Record<typeof columns[number], keyof PlayerData> ={
+function build_ascii_leader_board(all_player_stats: PlayerStats[]): string {
+	const columns = ["Name", "Rating", "Average Points", "Average Placement", "Games Played"] as const;
+	const column_to_property_mapping: Record<typeof columns[number], keyof PlayerStats> ={
 		"Name": "player_id",
+		"Rating": "displayed_rating",
 		"Average Points": "average_points",
 		"Average Placement": "average_placement",
 		"Games Played": "games_played"
@@ -33,15 +34,7 @@ function build_ascii_leader_board(all_player_stats: PlayerData[]): string {
 	const column_separator = "|";
 	const header_separator = "-";
 
-	all_player_stats.sort((lhs, rhs) => {
-		const points_diff = rhs.average_points - lhs.average_points
-		if (points_diff !== 0){
-			return points_diff
-		}
-		return lhs.average_placement - rhs.average_placement
-	})
-
-	var printable_player_stats: PlayerData[] = []
+	var printable_player_stats: PlayerStats[] = []
 	for (const player_stats of all_player_stats){
 		const player_name_result = get_player_name_from_id(player_stats.player_id);
 		if (player_name_result._tag === "Failure"){
@@ -50,7 +43,8 @@ function build_ascii_leader_board(all_player_stats: PlayerData[]): string {
 		const player_name = player_name_result.data;
 		printable_player_stats.push({
 			...player_stats,
-			player_id: player_name
+			player_id: player_name,
+			displayed_rating: Number(player_stats.displayed_rating.toFixed(2))
 		});
 	}
 
@@ -63,7 +57,7 @@ function build_ascii_leader_board(all_player_stats: PlayerData[]): string {
 			return Math.max(previous_max_width, current_width)
 		});
 
-		return Math.max(column_width, column_contents_width) + 2
+		return Math.max(column_width, column_contents_width, 0) + 2
 	});
 
 	const column_name_string = stringify_column_row(columns, column_max_width, column_separator)
