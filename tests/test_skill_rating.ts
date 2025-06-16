@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach } from '@jest/globals';
-import { RatingSystem, RatingZod } from '../src/utils/rating_system/skill_rating.js';
+import { RatingSystem, RatingZod } from '../src/utils/rating_system/skill_rating';
 
 describe('Skill Rating System', () => {
   let ratingSystem: RatingSystem;
