@@ -1,5 +1,5 @@
 import { REST, Routes, Client, GatewayIntentBits, Events, Interaction } from 'discord.js';
-import { TOKEN, CLIENT_ID, GUILD_ID } from './env.js';
+import { CLIENT_ID, GUILD_ID } from './config.js';
 import clear_existing_commands from './utils/server/clear_existing_commands.js';
 import getCommands from './utils/server/commands.js';
 import {AutoCompleteCommand} from './utils/types/command.js'
