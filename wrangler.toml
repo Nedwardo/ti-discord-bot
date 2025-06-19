@@ -1,0 +1,5 @@
+[env.staging]
+name = "DISCORD_TOKEN"
+
+[env.production]
+name = "DISCORD_TOKEN"
