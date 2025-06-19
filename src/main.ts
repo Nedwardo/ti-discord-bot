@@ -11,7 +11,13 @@ if (state._tag === "Failure"){
 	throw state.error;
 }
 
-const rest = new REST().setToken(TOKEN);
+const token = process.env.DISCORD_TOKEN;
+
+if (!token) {
+  throw new Error('The DISCORD_TOKEN environment variable is required.');
+}
+
+const rest = new REST().setToken(token);
 await clear_existing_commands(rest);
 
 
@@ -75,6 +81,6 @@ client.on(Events.InteractionCreate, async interaction => {
 
 });
 
-client.login(TOKEN);
+client.login(token);
 
 // Events.MessageUpdate
