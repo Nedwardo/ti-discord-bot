@@ -13,7 +13,8 @@ export async function validate_discord_request(request: Request, discord_token: 
             error: "Method not allowed"
         };
     }
-        verifyKeyMiddleware(discord_token);
+    verifyKeyMiddleware(discord_token);
+    console.log("Successfully verified key middleware, whatever that means")
 
     const signature = request.headers.get('x-signature-ed25519')?? "";
     const timestamp = request.headers.get('x-signature-timestamp')?? "";
@@ -21,6 +22,7 @@ export async function validate_discord_request(request: Request, discord_token: 
 
     // Verify Discord signature
     const isValidRequest = await verifyKey(body, signature, timestamp, discord_token);
+    console.log("valid request = " + isValidRequest)
     if (isValidRequest){
         return {
             _tag: "Success",
