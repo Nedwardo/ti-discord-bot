@@ -76,9 +76,9 @@ export async function handle_slash_command(interaction: APIChatInputApplicationC
     }
     console.log("User found")
 
-    const admin = is_admin(user.id, db);
+    const admin = await is_admin(user.id, db);
     
-    console.log("User " + user.username + " is " + admin? "": "not " + "an admin")
+    console.log("User " + user.username + " is " + (admin? "": "not ") + "an admin")
     const commands = await getCommands();
     if (!interaction.data){
         return {
