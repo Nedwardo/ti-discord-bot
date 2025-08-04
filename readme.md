@@ -14,3 +14,4 @@ Now hosting on [cloudflare](https://ti-discord-bot.edwardbo123.workers.dev)
 Still to fix:
 Autocomplete is bugged
 leaderboard is bugged
+more logging (output logs to disc?)
