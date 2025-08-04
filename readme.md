@@ -8,11 +8,9 @@ Autocomplete for factions is slow
 5. Would like to containerise my deployment, but this should be good for now
 6. I would like to backup my data every so often
 
-Now hosting on [railway](https://railway.com/project/68e32a5d-1a17-4113-b36f-5268dd1d6d3b?environmentId=18d8d1eb-9153-4453-aadc-83979fc499ab)
+Now hosting on [cloudflare](https://ti-discord-bot.edwardbo123.workers.dev)
 
 
 Still to fix:
-Autocomplete
-Embedds
-Builder vs sending to api
-Get commands need to take interaction type
+Autocomplete is bugged
+leaderboard is bugged
