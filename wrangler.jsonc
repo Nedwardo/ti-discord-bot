@@ -7,7 +7,8 @@
       "secret_name": "DISCORD_TOKEN"
     },
     "observability":{
-      "enabled": true 
+      "enabled": true,
+      "head_sampling_rate": 1
     },
     "d1_databases": [
       {
