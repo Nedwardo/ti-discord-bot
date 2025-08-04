@@ -1,28 +1,36 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
-import {Command} from '../utils/types/command.js';
+import {SlashCommand} from '../utils/types/command.js';
 import PlayerStats from '../utils/types/player_stats.js';
-import get_player_stats from '../utils/data_utils/player_stats_generator.js';
-import get_player_name_from_id from '../utils/data_utils/get_player_name_from_id.js';
+import get_all_player_stats from '../utils/data_utils/player_stats_generator.js';
+import { ApplicationCommandType, InteractionResponseType, InteractionType } from 'discord-api-types/v10';
+import { DB, get_player_data_from_id } from '../db/db_interactions.js';
 
-const leaderboard: Command<ChatInputCommandInteraction> = {
-	interaction_type_checker: (interaction) => interaction.isChatInputCommand(),
+const leaderboard: SlashCommand = {
 	admin_only_command: false,
-	command_metadata: new SlashCommandBuilder()
-		.setName('leaderboard')
-		.setDescription('Shows leaderboard of people\'s placement in TI games'),
-	async execute(interaction) {
-		const all_player_stats = get_player_stats();
+	interaction_types: [InteractionType.ApplicationCommand],
+	command_metadata: {
+		name: 'leaderboard',
+		description: 'Shows leaderboard of people\'s placement in TI games',
+		type: ApplicationCommandType.ChatInput
+	},
+	async execute(_, db) {
+		const all_player_stats = await get_all_player_stats(db);
 		all_player_stats.sort((lhs, rhs) => {
 			return lhs.displayed_rating - rhs.displayed_rating;
 		});
 		all_player_stats.reverse();
-		await interaction.reply({
-			content: build_ascii_leader_board(all_player_stats)
-		});
+		return {
+			_tag: "Success",
+			data: {
+				type: InteractionResponseType.ChannelMessageWithSource,
+				data: {
+					content: await build_ascii_leader_board(all_player_stats, db)
+				}
+			}
+		}
 	},
 };
 
-function build_ascii_leader_board(all_player_stats: PlayerStats[]): string {
+async function build_ascii_leader_board(all_player_stats: PlayerStats[], db: DB): Promise<string> {
 	const columns = ["Name", "Rating", "Average Points", "Average Placement", "Games Played"] as const;
 	const column_to_property_mapping: Record<typeof columns[number], keyof PlayerStats> ={
 		"Name": "player_id",
@@ -36,14 +44,11 @@ function build_ascii_leader_board(all_player_stats: PlayerStats[]): string {
 
 	var printable_player_stats: PlayerStats[] = []
 	for (const player_stats of all_player_stats){
-		const player_name_result = get_player_name_from_id(player_stats.player_id);
-		if (player_name_result._tag === "Failure"){
-			throw Error(player_name_result.error)
-		}
-		const player_name = player_name_result.data;
+		const player = (await get_player_data_from_id(player_stats.player_id, db));
+		const name = player ? player.name : "Error on player id " + player_stats.player_id + "contact <@99778758059237376>"
 		printable_player_stats.push({
 			...player_stats,
-			player_id: player_name,
+			player_id: name,
 			displayed_rating: Number(player_stats.displayed_rating.toFixed(2))
 		});
 	}
@@ -95,3 +100,4 @@ function stringify_column_row(row_as_list: readonly (string | number)[], expecte
 
 
 export default leaderboard;
+

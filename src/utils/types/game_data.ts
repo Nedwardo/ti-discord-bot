@@ -1,5 +1,6 @@
 import { format, parse } from 'date-fns';
-import z from 'zod/v4';
+import { games } from "../../db/schema.js"
+import { InferSelectModel } from 'drizzle-orm';
 
 export type GameData = {
     game_id: string;
@@ -8,14 +9,7 @@ export type GameData = {
     points_to_win: number;
 }
 
-export const StoredGameDataZod = z.object({
-    game_id: z.string(),
-    game_date: z.string(),
-    player_count: z.number(),
-    points_to_win: z.number()
-})
-
-export type StoredGameData = z.infer<typeof StoredGameDataZod>
+export type StoredGameData = InferSelectModel<typeof games>
 
 const date_format = "dd/MM/yyy"
 

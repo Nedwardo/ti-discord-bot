@@ -1,11 +1,10 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { Collection, Interaction } from 'discord.js';
-import {Command} from '../types/command.js';
+import { Command, SlashCommand } from '../types/command.js';
 import { fileURLToPath } from 'url';
 
 async function getCommands() {
-	const commands = new Collection<string, Command<Interaction>>();
+	const commands = new Map<string, Command>();
 	const commandsPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "commands");
 
 	const commandFiles = (await fs.readdir(commandsPath)).filter(
@@ -18,7 +17,7 @@ async function getCommands() {
 		const filePath = path.join(commandsPath, commandFile);
 
 		const commandModule = await import(`file://${filePath}`);
-		const command = commandModule.default as Command<Interaction>;
+		const command = commandModule.default as SlashCommand;
 
         try{
             console.log('Loading command: ' + command.command_metadata.name + ' from ' + filePath);

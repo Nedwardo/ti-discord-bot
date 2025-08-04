@@ -1,10 +1,16 @@
 {
     "name": "ti_discord_bot",
     "main": "dist/index.js",
-    "kv_namespaces": [
-    {
-      "binding": "ti_discord_storage",
-      "id": "f3bde2bad7fb49f69d8f130d51019293"
-    }
+    "secrets_store_secrets": {
+      "binding" : "DISCORD_TOKEN",
+      "store_id": "d925b78326ed48dbab3e5e24ce3b6708",
+      "secret_name": "DISCORD_TOKEN"
+    },
+    "d1_databases": [
+      {
+        "binding": "db",
+        "database_name": "ti_discord_bot_db",
+        "database_id": "8e861b15-6466-488d-a92b-a9c96b5a5107"
+      }
     ]
 }

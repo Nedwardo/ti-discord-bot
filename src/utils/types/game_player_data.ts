@@ -1,22 +1,19 @@
-import { User } from "discord.js";
-import { z } from "zod/v4";
+import { InferSelectModel } from "drizzle-orm";
+import { game_player_stats } from "../../db/schema.js"
 
-export const StoredGamePlayerDataZod = z.object({
-    game_id: z.string(),
-    player_id: z.string(),
-    faction: z.string(),
-    T0_speaker_order: z.number(),
-    ranking: z.number(),
-    points: z.number()
-});
-export type StoredGamePlayerData = z.infer<typeof StoredGamePlayerDataZod>
+export type StoredGamePlayerData = InferSelectModel<typeof game_player_stats>
 
 type GamePlayerData = {
     player: User;
     faction: string;
-    T0_speaker_order: number;
+    t0_speaker_order: number;
     ranking: number;
     points: number;
+}
+
+export type User = {
+    name: string,
+    id: string
 }
 
 

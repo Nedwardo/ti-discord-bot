@@ -1,11 +1,7 @@
-import z from "zod/v4";
-
-export const RatingZod = z.object({
-    mu: z.number(),
-    sigma: z.number(),
-})
-
-export type Rating = z.infer<typeof RatingZod>;
+export type Rating = {
+    mu: number;
+    sigma: number;
+}
 
 export class RatingSystem{
     mu: number;

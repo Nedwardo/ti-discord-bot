@@ -1,26 +1,33 @@
-import { ChatInputCommandInteraction, EmbedBuilder, InteractionReplyOptions, SlashCommandBuilder } from 'discord.js';
-import { Command } from '../utils/types/command.js';
-import data from '../utils/data_utils/persistent_store.js';
+import { SlashCommand } from '../utils/types/command.js';
 import Faction from '../utils/types/faction.js';
+import { APIInteractionResponse, ApplicationCommandType, InteractionResponseType, InteractionType } from 'discord-api-types/v10';
+import { get_all_factions } from '../db/db_interactions.js';
 
-const list_factions: Command<ChatInputCommandInteraction> = {
-	interaction_type_checker: (interaction) => interaction.isChatInputCommand(),
+const list_factions: SlashCommand = {
 	admin_only_command: false,
-	command_metadata: new SlashCommandBuilder()
-		.setName('list_factions')
-		.setDescription('Lists all TI factions, including ds'),
-	async execute(interaction) {
-		await interaction.reply(build_list_faction_embedded(data.factions.get()));
+	interaction_types: [InteractionType.ApplicationCommand],
+	command_metadata: {
+		name: 'list_factions',
+		description: 'Lists all TI factions, including ds',
+		type: ApplicationCommandType.ChatInput
+	},
+	async execute(_, db) {
+		return {
+			_tag: "Success",
+			data: build_list_faction_embedded(await get_all_factions(db))
+		};
 	},
 };
 
-function build_list_faction_embedded(list_of_factions: Faction[]): InteractionReplyOptions {
-	const embedded_message = new EmbedBuilder()
-	embedded_message.setTitle("List of Factions")
-	embedded_message.setDescription(list_of_factions.map((value => ":" + value.emoji + ": " + value.name)).join("\n"))
-
+function build_list_faction_embedded(list_of_factions: Faction[]): APIInteractionResponse {
 	return {
-		embeds: [embedded_message]
+		type: InteractionResponseType.ChannelMessageWithSource,
+		data: {
+			embeds: [{
+				title: "List of Factions",
+				description: list_of_factions.map((value => ":" + value.emoji + ": " + value.name)).join("\n")
+			}]
+		}
 	}
 }
 

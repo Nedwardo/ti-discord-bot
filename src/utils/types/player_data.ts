@@ -1,11 +1,6 @@
-import z from 'zod/v4';
-import { RatingZod } from '../rating_system/skill_rating.js';
+import { InferSelectModel } from "drizzle-orm";
+import { players } from "../../db/schema.js"
 
-export const PlayerDataZod = z.object({
-    name: z.string(),
-    id: z.string(),
-    rating: RatingZod
-})
-type PlayerData = z.infer<typeof PlayerDataZod>;
+type PlayerData = InferSelectModel<typeof players>;
 
 export default PlayerData;

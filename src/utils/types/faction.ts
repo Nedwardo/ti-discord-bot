@@ -1,9 +1,6 @@
-import z from 'zod/v4';
+import { InferSelectModel } from "drizzle-orm";
+import { factions } from "../../db/schema.js"
 
-export const FactionZod = z.object({
-    name: z.string(),
-    emoji: z.string()
-})
-type Faction = z.infer<typeof FactionZod>;
+type Faction = InferSelectModel<typeof factions>;
 
 export default Faction;

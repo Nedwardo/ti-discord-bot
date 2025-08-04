@@ -1,11 +1,22 @@
-import { AutocompleteInteraction, Interaction, SlashCommandOptionsOnlyBuilder } from 'discord.js';
 
-export type Command<T extends Interaction> = {
-	interaction_type_checker: (interaction: Interaction) => boolean,
+import { DB } from "../../db/db_interactions.js";
+import { APIInteractionResponse, APIApplicationCommandAutocompleteResponse, InteractionType, RESTPostAPIApplicationCommandsJSONBody, APIApplicationCommandAutocompleteInteraction, APIChatInputApplicationCommandInteraction } from "discord-api-types/v10";
+import Result from "./result.js";
+
+export type Command = {
+	interaction_types: (InteractionType.ApplicationCommand | InteractionType.ApplicationCommandAutocomplete)[],
 	admin_only_command: boolean,
-	command_metadata: SlashCommandOptionsOnlyBuilder,
-	execute: (interaction: T) => void
 }
-export type AutoCompleteCommand<T extends Interaction> = Command<T> & {
-	auto_complete_update: (interaction: AutocompleteInteraction) => void;
+
+export type SlashCommand = Command & {
+	interaction_types: [InteractionType.ApplicationCommand],
+	command_metadata: RESTPostAPIApplicationCommandsJSONBody,
+	execute: (interaction: APIChatInputApplicationCommandInteraction, db: DB) => Promise<Result<APIInteractionResponse, string>>
+}
+
+export type AutoCompleteSlashCommand = Command & {
+	interaction_types: [InteractionType.ApplicationCommand, InteractionType.ApplicationCommandAutocomplete],
+	command_metadata: RESTPostAPIApplicationCommandsJSONBody,
+	execute: (interaction: APIChatInputApplicationCommandInteraction, db: DB) => Promise<Result<APIInteractionResponse, string>>
+	auto_complete_update: (interaction: APIApplicationCommandAutocompleteInteraction, db: DB) => Promise<Result<APIApplicationCommandAutocompleteResponse, string>>
 };

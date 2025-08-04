@@ -8,6 +8,6 @@ type Success<T = void> = {
     data: T;
 }
 
-type Result<T = void, E = unknown> = Failure<E> | Success<T>;
+type Result<T = void, E = unknown> = Success<T> | Failure<E>;
 
 export default Result;

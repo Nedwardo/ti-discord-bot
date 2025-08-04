@@ -1,58 +1,61 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
-import {Command} from '../utils/types/command.js';
-import  data from '../utils/data_utils/persistent_store.js';
+import {SlashCommand} from '../utils/types/command.js';
+import  { add_admin, DB, is_admin } from '../db/db_interactions.js';
 import Result from '../utils/types/result.js';
+import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType, InteractionType, RESTPostAPIApplicationCommandsJSONBody } from 'discord-api-types/v10';
+import { get_user_option } from '../utils/get_option_value.js';
 
-const add_admin_command: Command<ChatInputCommandInteraction> = {
-	interaction_type_checker: (interaction) => interaction.isChatInputCommand(),
+const add_admin_command: SlashCommand = {
 	admin_only_command: true,
+    interaction_types: [InteractionType.ApplicationCommand],
 	command_metadata: build_add_admin_slash_command(),
-	async execute(interaction) {
-        const admin_id = interaction.options.getUser("admin_name", true).id
-        const result = save_new_admin(admin_id)
-        if (result._tag == "Success"){
-            await interaction.reply({
-                content: result.data
-            })
+	async execute(interaction, db) {
+        const admin_id = get_user_option(interaction.data.options, "admin_name")?.id
+        const result = await save_new_admin(admin_id, db)
+        if (result._tag === "Failure"){
+            return result
         }
-        else{
-            await interaction.reply({
-                content: result.error
-            })
+        return {
+            _tag: "Success",
+            data: {
+                type: InteractionResponseType.ChannelMessageWithSource,
+                data: {
+                    content: result.data
+                }
+            }
         }
 	},
 };
 
-function build_add_admin_slash_command(): SlashCommandBuilder{
-    var add_admin_slash_command = new SlashCommandBuilder()
-		.setName('add_new_admin')
-		.setDescription('Adds a new admin')
-    add_admin_slash_command.addUserOption(admin_name_option =>
-        admin_name_option.setName("admin_name")
-            .setDescription("Admin's discord handle")
-            .setRequired(true)
-    );
-    return add_admin_slash_command
+function build_add_admin_slash_command(): RESTPostAPIApplicationCommandsJSONBody{
+    return {
+		name: 'add_new_admin',
+		description: 'Adds a new admin',
+        type: ApplicationCommandType.ChatInput,
+        options: [{
+            name: "admin_name",
+            description: "Admin's discord handle",
+            type: ApplicationCommandOptionType.User,
+            required: true
+        }]
+    }
 }
 
-function save_new_admin(new_admin_id: string | undefined): Result<string, string>{
+async function save_new_admin(new_admin_id: string | undefined, db: DB): Promise<Result<string, string>>{
     if (new_admin_id === undefined){
          return {
             _tag: "Failure",
             error: "Admin id was undefined, idk how you got here, Summoning <@99778758059237376>"
         };
     }
-
-    var admin_ids = data.admins.get()
-    if (admin_ids.includes(new_admin_id)){
+    const already_is_admin = await is_admin(new_admin_id, db)
+    if (already_is_admin){
          return {
             _tag: "Failure",
             error: "Admin: <@" + new_admin_id + "> is already an admin"
         };
     }
 
-    admin_ids.push(new_admin_id)
-    data.admins.set(admin_ids)
+    add_admin(new_admin_id, db)
     return {
         _tag: "Success",
         data: "Admin: <@" + new_admin_id + "> added"
