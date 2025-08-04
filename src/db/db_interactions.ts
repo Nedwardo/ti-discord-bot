@@ -11,6 +11,8 @@ import RatingSystem, { Rating } from '../utils/rating_system/skill_rating.js'
 export type DB = DrizzleD1Database<typeof schema>
 
 export async function is_admin(id: string, db: DB): Promise<boolean>{
+    console.log("Looking up if " + id + " is admin");
+    console.log(await db.query.admins.findFirst({with: {id: id}}))
     return !!(await db.query.admins.findFirst({with: {id: id}}))
 }
 
