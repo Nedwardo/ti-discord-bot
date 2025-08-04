@@ -2,9 +2,10 @@ import getCommands from "./commands.js";
 import { AutoCompleteSlashCommand, SlashCommand } from "../types/command.js";
 import Result from "../types/result.js";
 import { DB, is_admin } from "../../db/db_interactions.js";
-import { APIApplicationCommandAutocompleteInteraction, APIChatInputApplicationCommandInteraction, APIInteraction, APIInteractionResponse, InteractionResponseType, InteractionType } from "discord-api-types/v10";
+import { APIApplicationCommandAutocompleteInteraction, APIChatInputApplicationCommandInteraction, APIGuild, APIInteraction, APIInteractionResponse, APIPartialInteractionGuild, InteractionResponseType, InteractionType } from "discord-api-types/v10";
 import { verifyKey, verifyKeyMiddleware } from "discord-interactions";
 import { DISCORD_PUBLIC_KEY } from "../../config.js";
+import { User } from "../types/game_player_data.js";
 
 
 export async function validate_discord_request(request: Request, discord_token: string): Promise<Result<number, string>>{
@@ -65,13 +66,14 @@ export async function handle_discord_commands(request: Request, token: string, d
 }
 
 export async function handle_slash_command(interaction: APIChatInputApplicationCommandInteraction, db: DB): Promise<Result<APIInteractionResponse, string>> {
-    if (!interaction.user){
+    const user = interaction.member?.user as User
+    if (!user){
         return {
             _tag: "Failure",
             error: "No user was found on the interaction: " + JSON.stringify(interaction)
         }
     }
-    const admin = is_admin(interaction.user.id, db);
+    const admin = is_admin(user.id, db);
     const commands = await getCommands();
     if (!interaction.data){
         return {

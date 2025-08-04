@@ -12,7 +12,7 @@ type GamePlayerData = {
 }
 
 export type User = {
-    name: string,
+    username: string,
     id: string
 }
 

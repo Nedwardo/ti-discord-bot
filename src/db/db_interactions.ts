@@ -97,7 +97,7 @@ function store_and_update_new_players(players: PlayerData[], reported_players: U
     reported_players.forEach((user, current_index) => {
         const rating = player_ratings[current_index] as Rating
         const updated_stats = {
-            name: user.name,
+            name: user.username,
             id: user.id,
             rating_mu: rating.mu,
             rating_sigma: rating.sigma
