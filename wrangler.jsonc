@@ -1,5 +1,5 @@
 {
-    "name": "ti_discord_bot",
+    "name": "ti-discord-bot",
     "main": "dist/index.js",
     "secrets_store_secrets": {
       "binding" : "DISCORD_TOKEN",
