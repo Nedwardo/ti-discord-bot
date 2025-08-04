@@ -6,6 +6,9 @@
       "store_id": "d925b78326ed48dbab3e5e24ce3b6708",
       "secret_name": "DISCORD_TOKEN"
     },
+    "observability":{
+      "enabled": true 
+    },
     "d1_databases": [
       {
         "binding": "db",
