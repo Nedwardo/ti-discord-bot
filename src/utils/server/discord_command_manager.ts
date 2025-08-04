@@ -38,6 +38,7 @@ export async function validate_discord_request(request: Request, discord_token: 
 }
 
 export async function handle_discord_commands(request: Request, token: string, db: DB): Promise<Result<APIInteractionResponse, string>>{
+    console.log("Validating discord request")
     const valid_request = await validate_discord_request(request, token);
 
     if (valid_request._tag === "Failure") {
