@@ -19,6 +19,7 @@ export default {
       return new Response(JSON.stringify(response.data), {headers: { 'content-type': 'application/json' }})
     }
 
+    console.log("ERROR")
     console.error(response.error)
     return new Response(response.error, {headers: { 'content-type': 'application/text'}})
   }
