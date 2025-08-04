@@ -21,6 +21,7 @@ export async function validate_discord_request(request: Request, discord_token: 
     const body = await request.clone().arrayBuffer();
 
     // Verify Discord signature
+    console.log("Verifying key with body:\n" + body + "\n\nsignature:\n" + signature + "\n\ntimestamp:\n" + timestamp)
     const isValidRequest = await verifyKey(body, signature, timestamp, discord_token);
     console.log("valid request = " + isValidRequest)
     if (isValidRequest){
