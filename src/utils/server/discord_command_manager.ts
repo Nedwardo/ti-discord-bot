@@ -14,18 +14,14 @@ export async function validate_discord_request(request: Request, discord_token: 
             error: "Method not allowed"
         };
     }
-    console.log("Verifying key middleware")
     verifyKeyMiddleware(discord_token);
-    console.log("Successfully verified key middleware, whatever that means")
 
     const signature = request.headers.get('x-signature-ed25519')?? "";
     const timestamp = request.headers.get('x-signature-timestamp')?? "";
     const body = await request.clone().arrayBuffer();
 
     // Verify Discord signature
-    console.log("Verifying key with body:\n" + body + "\n\nsignature:\n" + signature + "\n\ntimestamp:\n" + timestamp)
     const isValidRequest = await verifyKey(body, signature, timestamp, DISCORD_PUBLIC_KEY);
-    console.log("valid request = " + isValidRequest)
     if (isValidRequest){
         return {
             _tag: "Success",
@@ -72,7 +68,7 @@ export async function handle_slash_command(interaction: APIChatInputApplicationC
     if (!interaction.user){
         return {
             _tag: "Failure",
-            error: "No user was found on the interaction: " + interaction
+            error: "No user was found on the interaction: " + JSON.stringify(interaction)
         }
     }
     const admin = is_admin(interaction.user.id, db);
