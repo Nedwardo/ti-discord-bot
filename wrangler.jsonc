@@ -1,11 +1,11 @@
 {
     "name": "ti-discord-bot",
     "main": "dist/index.js",
-    "secrets_store_secrets": {
+    "secrets_store_secrets": [{
       "binding" : "DISCORD_TOKEN",
       "store_id": "d925b78326ed48dbab3e5e24ce3b6708",
       "secret_name": "DISCORD_TOKEN"
-    },
+    }],
     "observability":{
       "enabled": true,
       "head_sampling_rate": 1
