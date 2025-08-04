@@ -13,6 +13,7 @@ export async function validate_discord_request(request: Request, discord_token: 
             error: "Method not allowed"
         };
     }
+    console.log("Verifying key middleware")
     verifyKeyMiddleware(discord_token);
     console.log("Successfully verified key middleware, whatever that means")
 
