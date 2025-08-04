@@ -12,8 +12,8 @@ export type DB = DrizzleD1Database<typeof schema>
 
 export async function is_admin(id: string, db: DB): Promise<boolean>{
     console.log("Looking up if " + id + " is admin");
-    console.log(await db.query.admins.findFirst({with: {id: id}}))
-    return !!(await db.query.admins.findFirst({with: {id: id}}))
+    console.log(await db.query.admins.findFirst({where: (admins, { eq }) => eq(admins.id, id)}))
+    return !!(await db.query.admins.findFirst({where: (admins, { eq }) => eq(admins.id, id)}))
 }
 
 export function add_admin(id: string, db: DB): Promise<D1Result> {
