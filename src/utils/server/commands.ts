@@ -1,33 +1,34 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { Command, SlashCommand } from '../types/command.js';
-import { fileURLToPath } from 'url';
+import { Command } from '../types/command.js';
+import add_admin_command from '../../commands/add_admin_command.js';
+import leaderboard from '../../commands/leaderboard.js';
+import list_factions from '../../commands/list_factions.js';
+import submit_10_points_4_player_game from '../../commands/submit_10_points_4_player_game.js';
+import submit_10_points_5_player_game from '../../commands/submit_10_points_5_player_game.js';
+import submit_10_points_6_player_game from '../../commands/submit_10_points_6_player_game.js';
+import submit_10_points_7_player_game from '../../commands/submit_10_points_7_player_game.js';
+import submit_10_points_8_player_game from '../../commands/submit_10_points_8_player_game.js';
+import submit_14_points_4_player_game from '../../commands/submit_14_points_4_player_game.js';
+import submit_14_points_5_player_game from '../../commands/submit_14_points_5_player_game.js';
+import submit_14_points_6_player_game from '../../commands/submit_14_points_6_player_game.js';
+import submit_14_points_7_player_game from '../../commands/submit_14_points_7_player_game.js';
+import submit_14_points_8_player_game from '../../commands/submit_14_points_8_player_game.js';
 
 async function getCommands() {
-	const commands = new Map<string, Command>();
-	const commandsPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "commands");
-
-	const commandFiles = (await fs.readdir(commandsPath)).filter(
-		(filename) => filename.endsWith(".ts") || filename.endsWith(".js")
-	).map(
-		(filename: string) => filename.replace('/.ts$/', '.js')
-	);
-
-	for (const commandFile of commandFiles) {
-		const filePath = path.join(commandsPath, commandFile);
-
-		const commandModule = await import(`file://${filePath}`);
-		const command = commandModule.default as SlashCommand;
-
-        try{
-            console.log('Loading command: ' + command.command_metadata.name + ' from ' + filePath);
-		    commands.set(command.command_metadata.name, command);
-        } 
-        catch{
-            console.log("Unable to load command from: " + filePath)
-        }
-	}
-
+	const commands = new Map<string, Command>([
+		["add_new_admin", add_admin_command],
+		["leaderboard", leaderboard],
+		["list_factions", list_factions],
+		["submit_10_points_4_player_game", submit_10_points_4_player_game],
+		["submit_10_points_5_player_game", submit_10_points_5_player_game],
+		["submit_10_points_6_player_game", submit_10_points_6_player_game],
+		["submit_10_points_7_player_game", submit_10_points_7_player_game],
+		["submit_10_points_8_player_game", submit_10_points_8_player_game],
+		["submit_14_points_4_player_game", submit_14_points_4_player_game],
+		["submit_14_points_5_player_game", submit_14_points_5_player_game],
+		["submit_14_points_6_player_game", submit_14_points_6_player_game],
+		["submit_14_points_7_player_game", submit_14_points_7_player_game],
+		["submit_14_points_8_player_game", submit_14_points_8_player_game]
+	]);
 	return commands;
 }
 
