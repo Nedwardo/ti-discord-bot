@@ -15,3 +15,4 @@ Still to fix:
 Autocomplete is bugged
 leaderboard is bugged
 more logging (output logs to disc?)
+rate limiting?
