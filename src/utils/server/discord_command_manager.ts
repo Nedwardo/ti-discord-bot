@@ -2,7 +2,7 @@ import getCommands from "./commands.js";
 import { AutoCompleteSlashCommand, SlashCommand } from "../types/command.js";
 import Result from "../types/result.js";
 import { DB, is_admin } from "../../db/db_interactions.js";
-import { APIApplicationCommandAutocompleteInteraction, APIChatInputApplicationCommandInteraction, APIGuild, APIInteraction, APIInteractionResponse, APIPartialInteractionGuild, InteractionResponseType, InteractionType } from "discord-api-types/v10";
+import { APIApplicationCommandAutocompleteInteraction, APIChatInputApplicationCommandInteraction, APIInteraction, APIInteractionResponse, InteractionResponseType, InteractionType } from "discord-api-types/v10";
 import { verifyKey, verifyKeyMiddleware } from "discord-interactions";
 import { DISCORD_PUBLIC_KEY } from "../../config.js";
 import { User } from "../types/game_player_data.js";
@@ -66,6 +66,7 @@ export async function handle_discord_commands(request: Request, token: string, d
 }
 
 export async function handle_slash_command(interaction: APIChatInputApplicationCommandInteraction, db: DB): Promise<Result<APIInteractionResponse, string>> {
+    console.log("handling slash command")
     const user = interaction.member?.user as User
     if (!user){
         return {
@@ -73,7 +74,11 @@ export async function handle_slash_command(interaction: APIChatInputApplicationC
             error: "No user was found on the interaction: " + JSON.stringify(interaction)
         }
     }
+    console.log("User found")
+
     const admin = is_admin(user.id, db);
+    
+    console.log("User " + user.username + " is " + admin? "": "not " + "an admin")
     const commands = await getCommands();
     if (!interaction.data){
         return {
@@ -81,6 +86,7 @@ export async function handle_slash_command(interaction: APIChatInputApplicationC
             error: "No data was found on the interaction: " + interaction
         }
     }
+    console.log("Looking up command")
     const command = commands.get(interaction.data.name);
 
     var error_message: null | string = null;
@@ -91,6 +97,7 @@ export async function handle_slash_command(interaction: APIChatInputApplicationC
         error_message = "Sorry my ass is too lazy to make this app work 90% of the time, so only an admin can use it.\nPlease ask Ed to become an admin"
     }
     else{
+        console.log("Successfully found command")
         try{
             return (command as SlashCommand).execute(interaction, db);
         } catch (error){
@@ -98,6 +105,7 @@ export async function handle_slash_command(interaction: APIChatInputApplicationC
         }
     }
 
+    console.log("Slash command failed")
     return{
         _tag: "Failure",
         error: error_message
