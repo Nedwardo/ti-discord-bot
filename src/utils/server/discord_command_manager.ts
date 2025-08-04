@@ -4,6 +4,7 @@ import Result from "../types/result.js";
 import { DB, is_admin } from "../../db/db_interactions.js";
 import { APIApplicationCommandAutocompleteInteraction, APIChatInputApplicationCommandInteraction, APIInteraction, APIInteractionResponse, InteractionResponseType, InteractionType } from "discord-api-types/v10";
 import { verifyKey, verifyKeyMiddleware } from "discord-interactions";
+import { DISCORD_PUBLIC_KEY } from "../../config.js";
 
 
 export async function validate_discord_request(request: Request, discord_token: string): Promise<Result<number, string>>{
@@ -23,7 +24,7 @@ export async function validate_discord_request(request: Request, discord_token: 
 
     // Verify Discord signature
     console.log("Verifying key with body:\n" + body + "\n\nsignature:\n" + signature + "\n\ntimestamp:\n" + timestamp)
-    const isValidRequest = await verifyKey(body, signature, timestamp, discord_token);
+    const isValidRequest = await verifyKey(body, signature, timestamp, DISCORD_PUBLIC_KEY);
     console.log("valid request = " + isValidRequest)
     if (isValidRequest){
         return {
