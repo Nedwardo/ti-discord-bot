@@ -10,6 +10,7 @@ export default {
   async fetch(request: Request, env: ENV) {
     console.log("Setting up db")
     const db = drizzle(env.db, {schema})
+    console.log("Request:\n" + JSON.stringify(request));
 
     console.log("Handling response")
     const response = await handle_discord_commands(request, env.DISCORD_TOKEN, db);
