@@ -3,7 +3,7 @@ import PlayerStats from '../utils/types/player_stats.js';
 import generate_player_stats_array from '../utils/data_utils/player_stats_generator.js';
 import { ApplicationCommandType, InteractionResponseType, InteractionType } from 'discord-api-types/v10';
 import { get_all_game_player_data, get_all_players } from '../db/db_interactions.js';
-import PlayerData from '../utils/types/player_data.js';
+import get_username_from_id from '../utils/get_username_from_ids.js';
 
 const leaderboard: SlashCommand = {
 	admin_only_command: false,
@@ -16,6 +16,11 @@ const leaderboard: SlashCommand = {
 	async execute(_, db) {
 		const player_data = await get_all_players(db)
 		console.log("All players data: " + JSON.stringify(player_data))
+		
+		const id_to_username_map = new Map<string, Promise<string>>();
+		player_data.forEach(player => 
+			id_to_username_map.set(player.id, get_username_from_id(player.id))
+		)
 
 		const game_player_data = await get_all_game_player_data(db)
 		console.log("All game players data: " + JSON.stringify(game_player_data))
@@ -29,16 +34,15 @@ const leaderboard: SlashCommand = {
 			data: {
 				type: InteractionResponseType.ChannelMessageWithSource,
 				data: {
-					content: await build_ascii_leader_board(all_player_stats, player_data)
+					content: await build_ascii_leader_board(all_player_stats, id_to_username_map)
 				}
 			}
 		}
 	},
 };
 
-async function build_ascii_leader_board(all_player_stats: PlayerStats[], player_data: PlayerData[]): Promise<string> {
+async function build_ascii_leader_board(all_player_stats: PlayerStats[], id_to_username_map: Map<string, Promise<string>>): Promise<string> {
 	console.log("Building ascii leaderboard")
-	console.log("All player stats: " + JSON.stringify(all_player_stats) + "Player data: " + JSON.stringify(player_data))
 	const columns = ["Name", "Rating", "Average Points", "Average Placement", "Games Played"] as const;
 	const column_to_property_mapping: Record<typeof columns[number], keyof PlayerStats> ={
 		"Name": "player_id",
@@ -53,11 +57,9 @@ async function build_ascii_leader_board(all_player_stats: PlayerStats[], player_
 	var printable_player_stats: PlayerStats[] = []
 	console.log("Iterating through all player stat to generate printable player stats")
 	for (const player_stats of all_player_stats){
-		const player = (player_data.filter(player => player.id == player_stats.player_id))[0];
-		const name = player ? player.id : "Error on player id " + player_stats.player_id + "contact <@99778758059237376>"
 		printable_player_stats.push({
 			...player_stats,
-			player_id: "<@" + name + ">",
+			player_id: await id_to_username_map.get(player_stats.player_id) ?? player_stats.player_id,
 			displayed_rating: Number(player_stats.displayed_rating.toFixed(2))
 		});
 	}
