@@ -26,16 +26,21 @@ export function get_all_factions(db: DB): Promise<Faction[]>{
 
 export async function get_all_players(db: DB): Promise<PlayerData[]>{
     console.log("Getting player list from db")
-    console.log("TEMP o: " + await db.select().from(schema.players).all())  //TODO remove
     return db.select().from(schema.players).all()
 }
 export async function get_player_data_from_id(id: string, db: DB): Promise<PlayerData | undefined>{
     return db.query.players.findFirst({with: {id: id}})
 }
-function store_new_players(player: PlayerData[], db: DB): Promise<D1Result>{
-    return db.insert(schema.players).values(player).run();
+async function store_new_players(players: PlayerData[], db: DB): Promise<D1Result | void>{
+    if (players.length === 0){
+        return
+    }
+    return db.insert(schema.players).values(players).run();
 }
-function update_players(players: PlayerData[], db: DB): Promise<D1Result>{
+async function update_players(players: PlayerData[], db: DB): Promise<D1Result | void>{
+    if (players.length === 0){
+        return
+    }
     db.delete(schema.players).where(inArray(schema.players.id, players.map(player => player.id)))
     return store_new_players(players, db);
 }
@@ -68,10 +73,10 @@ export async function store_game_data(game: {player_data: GamePlayerData[], date
         game_id: game_id,
     })
     console.log("Storing game data:\n" + JSON.stringify(stored_game_data))
-    var result: D1Result | D1Result[]
+    var result: D1Result | (D1Result | void)[]
 
     result = await store_game(stored_game_data, db)
-    console.log("Result of storing game data: " + result)
+    console.log("Result of storing game data: " + JSON.stringify(result))
 
     result = await store_and_update_new_players(players, game.player_data.map(player_data => player_data.player), player_ratings, db)
     console.log("Result of storing new player data: " + result)
@@ -105,7 +110,7 @@ function update_player_ratings(players: PlayerData[], player_data: GamePlayerDat
     return rating_system.update_player_rankings(ratings, placings)
 }
 
-function store_and_update_new_players(players: PlayerData[], reported_players: User[], player_ratings: Rating[], db: DB): Promise<D1Result[]>{
+function store_and_update_new_players(players: PlayerData[], reported_players: User[], player_ratings: Rating[], db: DB): Promise<(D1Result | void)[]>{
     const new_players: PlayerData[] = [];
     const players_to_update: PlayerData[] = [];
 
@@ -126,6 +131,8 @@ function store_and_update_new_players(players: PlayerData[], reported_players: U
             new_players.push(updated_stats)
         }
     })
+    console.log("New players " + JSON.stringify(new_players))
+    console.log("Updated players " + JSON.stringify(players_to_update))
     return Promise.all([store_new_players(new_players, db), update_players(players_to_update, db)]);
 }
 
