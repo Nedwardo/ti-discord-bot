@@ -82,6 +82,8 @@ function get_game_data_from_command_input(interaction: APIChatInputApplicationCo
     var list_metrics: string[] = []
     var list_numerical_metrics: number[] = []
 
+    console.log("Reading fields from user input")
+
     if (!interaction.data.options){
         return {
             _tag: "Failure",
@@ -89,6 +91,7 @@ function get_game_data_from_command_input(interaction: APIChatInputApplicationCo
         }
     }
 
+    console.log("Getting date string")
     const date_string = get_string_option(interaction.data.options, "game_date")
     if (!date_string){
         return {
@@ -106,6 +109,7 @@ function get_game_data_from_command_input(interaction: APIChatInputApplicationCo
     }
 
     for (let player_index = 1; player_index <= player_count; player_index++) {
+        console.log("Getting player " + player_index + "'s metrics")
         metrics = get_string_option(interaction.data.options, "player_" + player_index + "_metrics")
         if (!metrics){
             return {
@@ -131,6 +135,7 @@ function get_game_data_from_command_input(interaction: APIChatInputApplicationCo
             }
         }
 
+        console.log("Getting player " + player_index + "'s faction choice")
         faction = get_string_option(interaction.data.options, "player_"+player_index+"_faction_choice")
         if (!faction){
             return {
