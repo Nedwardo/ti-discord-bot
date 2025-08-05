@@ -24,9 +24,9 @@ export function get_all_factions(db: DB): Promise<Faction[]>{
     return db.select().from(schema.factions).all()
 }
 
-export function get_all_players(db: DB): Promise<PlayerData[]>{
+export async function get_all_players(db: DB): Promise<PlayerData[]>{
     console.log("Getting player list from db")
-    console.log("TEMP o: " + db.select().from(schema.players).all())  //TODO remove
+    console.log("TEMP o: " + await db.select().from(schema.players).all())  //TODO remove
     return db.select().from(schema.players).all()
 }
 export async function get_player_data_from_id(id: string, db: DB): Promise<PlayerData | undefined>{
