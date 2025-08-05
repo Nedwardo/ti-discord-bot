@@ -95,7 +95,7 @@ function update_player_ratings(players: PlayerData[], player_data: GamePlayerDat
     })
 
     const ratings = player_data.map((player_datas) => {
-        const stored_index = existing_id_to_index_map.get(player_datas.player_id.id);
+        const stored_index = existing_id_to_index_map.get(player_datas.player_id);
         if(stored_index !== undefined && players[stored_index]){
             return {
                 mu: players[stored_index].rating_mu,
@@ -126,7 +126,7 @@ function store_and_update_new_players(players: PlayerData[], reported_players: s
             rating_mu: rating.mu,
             rating_sigma: rating.sigma
         }
-        if (existing_player_ids.includes(player_id.id)){
+        if (existing_player_ids.includes(player_id)){
             players_to_update.push(updated_stats)
         }
         else{
@@ -142,7 +142,7 @@ function store_game_player_stats(existing_player_data: StoredGamePlayerData[], g
     const new_player_stats = player_data.map(({player_id: player_id, ...rest}) => ({
         ...rest,
         game_id: game_id,
-        player_id: player_id.id
+        player_id: player_id
     })) as StoredGamePlayerData[];
 
     const player_stats = [...existing_player_data, ...new_player_stats]

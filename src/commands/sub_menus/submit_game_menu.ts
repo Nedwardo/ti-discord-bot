@@ -144,7 +144,7 @@ function get_game_data_from_command_input(interaction: APIChatInputApplicationCo
             }
         }
         const individual_player_data = {
-            player: player_id,
+            player_id: player_id,
             faction: faction,
             t0_speaker_order: list_numerical_metrics[2] as number,
             ranking: list_numerical_metrics[0] as number,
