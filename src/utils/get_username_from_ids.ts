@@ -4,7 +4,9 @@ async function get_username_from_id(id: string) : Promise<string>{
     return fetch(url + id).then(
         response => {
             try{
-                const username = response.json().then(json_response => json_response.get("username", id))
+                const username = response.json().then(json_response => {
+                    return "username" in Object.keys(json_response) ? json_response.username as string : id
+                })
                 return username
             } catch{
                 return id
