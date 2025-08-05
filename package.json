@@ -12,8 +12,7 @@
         "discord-interactions": "^4.3.0",
         "dotenv": "^17.2.1",
         "drizzle-orm": "^0.44.4",
-        "uuid": "^11.1.0",
-        "zod": "^3.25.49"
+        "uuid": "^11.1.0"
     },
     "type": "module",
     "scripts": {

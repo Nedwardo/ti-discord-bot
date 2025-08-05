@@ -8,7 +8,6 @@ import type { D1Result } from '@cloudflare/workers-types';
 import { inArray } from 'drizzle-orm'
 import { convert_game_data_to_stored_game_data, StoredGameData } from '../utils/types/game_data.js'
 import RatingSystem, { Rating } from '../utils/rating_system/skill_rating.js'
-import { promise } from 'zod/v4'
 export type DB = DrizzleD1Database<typeof schema>
 
 export async function is_admin(id: string, db: DB): Promise<boolean>{
