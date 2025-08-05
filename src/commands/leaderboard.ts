@@ -31,6 +31,7 @@ const leaderboard: SlashCommand = {
 };
 
 async function build_ascii_leader_board(all_player_stats: PlayerStats[], db: DB): Promise<string> {
+	console.log("Building ascii leaderboard")
 	const columns = ["Name", "Rating", "Average Points", "Average Placement", "Games Played"] as const;
 	const column_to_property_mapping: Record<typeof columns[number], keyof PlayerStats> ={
 		"Name": "player_id",
