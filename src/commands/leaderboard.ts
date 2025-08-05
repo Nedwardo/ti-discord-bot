@@ -45,7 +45,7 @@ async function build_ascii_leader_board(all_player_stats: PlayerStats[], db: DB)
 	var printable_player_stats: PlayerStats[] = []
 	for (const player_stats of all_player_stats){
 		const player = (await get_player_data_from_id(player_stats.player_id, db));
-		const name = player ? player.name : "Error on player id " + player_stats.player_id + "contact <@99778758059237376>"
+		const name = player ? player.id : "Error on player id " + player_stats.player_id + "contact <@99778758059237376>"
 		printable_player_stats.push({
 			...player_stats,
 			player_id: name,
