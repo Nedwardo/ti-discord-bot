@@ -6,6 +6,8 @@ async function get_username_from_id(id: string) : Promise<string>{
             try{
                 const username = response.json().then(json_response => {
                     console.log("Response = " + JSON.stringify(json_response))
+                    console.log("username" in Object.keys(json_response))
+                    console.log("username" in Object.keys(json_response) ? json_response.username as string : id)
                     return "username" in Object.keys(json_response) ? json_response.username as string : id
                 })
                 return username
