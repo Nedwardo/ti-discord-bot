@@ -151,7 +151,7 @@ function get_game_data_from_command_input(interaction: APIChatInputApplicationCo
             points: list_numerical_metrics[1] as number
         }
         
-        console.log("Player data is:\n" + JSON.stringify(individual_player_data))
+        console.log("Player data is:\n" + JSON.stringify(individual_player_data) + "\n")
         player_data.push(individual_player_data)
 
     }
