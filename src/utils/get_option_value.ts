@@ -25,5 +25,6 @@ export function get_boolean_option(options: APIApplicationCommandInteractionData
 }
 
 export function get_user_option(options: APIApplicationCommandInteractionDataOption[] | undefined, name: string): User | undefined {
+  console.log("Getting user from:\n" + "name: " + name + "\noptions:\n" + JSON.stringify(options))
   return get_option_value(options, name, ApplicationCommandOptionType.User);
 }
