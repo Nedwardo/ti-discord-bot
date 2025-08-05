@@ -12,7 +12,10 @@ Now hosting on [cloudflare](https://ti-discord-bot.edwardbo123.workers.dev)
 
 
 Still to fix:
+Need a way to republish commands (Maybe in deploy command?)
 Autocomplete is bugged
 leaderboard is bugged
 more logging (output logs to disc?)
 rate limiting?
+Output of submitting game should show change to rating points (mu and sigma for now)
+have a way to undo game inputs, or at least check for duplicates

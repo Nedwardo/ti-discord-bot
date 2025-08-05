@@ -97,6 +97,7 @@ function get_game_data_from_command_input(interaction: APIChatInputApplicationCo
         }
     }
     const date = parse(date_string, "dd-MM-yy", Date())
+    console.log("Game date is " + date)
     if (!date){
         return {
             _tag: "Failure",
@@ -120,6 +121,7 @@ function get_game_data_from_command_input(interaction: APIChatInputApplicationCo
                 error: "some of the metrics were not numbers"
             }
         list_numerical_metrics = list_metrics.map(Number)
+        console.log("Player metrics are " + list_numerical_metrics)
 
         player = get_user_option(interaction.data.options, "player_"+player_index+"_discord_name")
         if (!player){
@@ -136,16 +138,19 @@ function get_game_data_from_command_input(interaction: APIChatInputApplicationCo
                 error: "Player at index " + player_index + " not found, whilst looking up faction choice, summoning <@99778758059237376>"
             }
         }
-
-        player_data.push({
+        const individual_player_data = {
             player: player,
             faction: faction,
             t0_speaker_order: list_numerical_metrics[2] as number,
             ranking: list_numerical_metrics[0] as number,
             points: list_numerical_metrics[1] as number
-        })
+        }
+        
+        console.log("Player data is:\n" + JSON.stringify(individual_player_data))
+        player_data.push(individual_player_data)
 
     }
+    console.log("Successfully got all players data")
     return {
         _tag: "Success",
         data: {player_data: player_data, date: date, points_to_win: points_to_win}

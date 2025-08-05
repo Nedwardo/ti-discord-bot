@@ -8,6 +8,7 @@ import type { D1Result } from '@cloudflare/workers-types';
 import { inArray } from 'drizzle-orm'
 import { convert_game_data_to_stored_game_data, StoredGameData } from '../utils/types/game_data.js'
 import RatingSystem, { Rating } from '../utils/rating_system/skill_rating.js'
+import { promise } from 'zod/v4'
 export type DB = DrizzleD1Database<typeof schema>
 
 export async function is_admin(id: string, db: DB): Promise<boolean>{
@@ -25,6 +26,7 @@ export function get_all_factions(db: DB): Promise<Faction[]>{
 }
 
 export function get_all_players(db: DB): Promise<PlayerData[]>{
+    console.log("Getting player list from db")
     return db.select().from(schema.players).all()
 }
 export async function get_player_data_from_id(id: string, db: DB): Promise<PlayerData | undefined>{
@@ -46,12 +48,17 @@ function store_new_game_player_data(game_player_data: StoredGamePlayerData[], db
 }
 
 function store_game(game_data: StoredGameData, db: DB): Promise<D1Result> {
+    console.log("Storing game data into games table")
     return db.insert(schema.games).values(game_data).run()
 }
 
 export async function store_game_data(game: {player_data: GamePlayerData[], date: Date, points_to_win: number}, db: DB): Promise<void> {
+    console.log("Storing players data")
     const game_id = uuid()
+
     const players = await get_all_players(db);
+    console.log("Players from db:\n" + JSON.stringify(players));
+
     const player_ratings = update_player_ratings(players, game.player_data);
 
     const stored_game_data = convert_game_data_to_stored_game_data({
@@ -60,9 +67,17 @@ export async function store_game_data(game: {player_data: GamePlayerData[], date
         points_to_win: game.points_to_win,
         game_id: game_id,
     })
-    store_game(stored_game_data, db)
-    store_and_update_new_players(players, game.player_data.map(player_data => player_data.player), player_ratings, db)
-    store_game_player_stats(await get_all_game_player_data(db), game_id, game.player_data, db)
+    console.log("Storing game data:\n" + JSON.stringify(stored_game_data))
+    var result: D1Result | D1Result[]
+
+    result = await store_game(stored_game_data, db)
+    console.log("Result of storing game data: " + result)
+
+    result = await store_and_update_new_players(players, game.player_data.map(player_data => player_data.player), player_ratings, db)
+    console.log("Result of storing new player data: " + result)
+
+    result = await store_game_player_stats(await get_all_game_player_data(db), game_id, game.player_data, db)
+    console.log("Result of storing new game player stats data: " + result)
 }
 
 function update_player_ratings(players: PlayerData[], player_data: GamePlayerData[]): Rating[] {
@@ -90,7 +105,7 @@ function update_player_ratings(players: PlayerData[], player_data: GamePlayerDat
     return rating_system.update_player_rankings(ratings, placings)
 }
 
-function store_and_update_new_players(players: PlayerData[], reported_players: User[], player_ratings: Rating[], db: DB): void{
+function store_and_update_new_players(players: PlayerData[], reported_players: User[], player_ratings: Rating[], db: DB): Promise<D1Result[]>{
     const new_players: PlayerData[] = [];
     const players_to_update: PlayerData[] = [];
 
@@ -111,11 +126,10 @@ function store_and_update_new_players(players: PlayerData[], reported_players: U
             new_players.push(updated_stats)
         }
     })
-    store_new_players(new_players, db)
-    update_players(players_to_update, db)
+    return Promise.all([store_new_players(new_players, db), update_players(players_to_update, db)]);
 }
 
-function store_game_player_stats(existing_player_data: StoredGamePlayerData[], game_id: string, player_data: GamePlayerData[], db: DB): void{
+function store_game_player_stats(existing_player_data: StoredGamePlayerData[], game_id: string, player_data: GamePlayerData[], db: DB): Promise<D1Result>{
     const new_player_stats = player_data.map(({player: player_id, ...rest}) => ({
         ...rest,
         game_id: game_id,
@@ -124,5 +138,5 @@ function store_game_player_stats(existing_player_data: StoredGamePlayerData[], g
 
     const player_stats = [...existing_player_data, ...new_player_stats]
 
-    store_new_game_player_data(player_stats, db)
+    return store_new_game_player_data(player_stats, db)
 }
