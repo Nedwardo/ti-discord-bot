@@ -2,7 +2,7 @@ import {SlashCommand} from '../utils/types/command.js';
 import PlayerStats from '../utils/types/player_stats.js';
 import generate_player_stats_array from '../utils/data_utils/player_stats_generator.js';
 import { ApplicationCommandType, InteractionResponseType, InteractionType } from 'discord-api-types/v10';
-import { DB, get_all_game_player_data, get_all_players, get_player_data_from_id } from '../db/db_interactions.js';
+import { get_all_game_player_data, get_all_players } from '../db/db_interactions.js';
 import PlayerData from '../utils/types/player_data.js';
 
 const leaderboard: SlashCommand = {
