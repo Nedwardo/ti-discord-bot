@@ -57,7 +57,7 @@ async function build_ascii_leader_board(all_player_stats: PlayerStats[], player_
 		const name = player ? player.id : "Error on player id " + player_stats.player_id + "contact <@99778758059237376>"
 		printable_player_stats.push({
 			...player_stats,
-			player_id: name,
+			player_id: "<@" + name + ">",
 			displayed_rating: Number(player_stats.displayed_rating.toFixed(2))
 		});
 	}
