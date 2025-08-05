@@ -1,8 +1,9 @@
 import {SlashCommand} from '../utils/types/command.js';
 import PlayerStats from '../utils/types/player_stats.js';
-import get_all_player_stats from '../utils/data_utils/player_stats_generator.js';
+import generate_player_stats_array from '../utils/data_utils/player_stats_generator.js';
 import { ApplicationCommandType, InteractionResponseType, InteractionType } from 'discord-api-types/v10';
-import { DB, get_player_data_from_id } from '../db/db_interactions.js';
+import { DB, get_all_game_player_data, get_all_players, get_player_data_from_id } from '../db/db_interactions.js';
+import PlayerData from '../utils/types/player_data.js';
 
 const leaderboard: SlashCommand = {
 	admin_only_command: false,
@@ -13,7 +14,12 @@ const leaderboard: SlashCommand = {
 		type: ApplicationCommandType.ChatInput
 	},
 	async execute(_, db) {
-		const all_player_stats = await get_all_player_stats(db);
+		const player_data = await get_all_players(db)
+		console.log("All players data: " + JSON.stringify(player_data))
+
+		const game_player_data = await get_all_game_player_data(db)
+		console.log("All game players data: " + JSON.stringify(game_player_data))
+		const all_player_stats = generate_player_stats_array(player_data, game_player_data);
 		all_player_stats.sort((lhs, rhs) => {
 			return lhs.displayed_rating - rhs.displayed_rating;
 		});
@@ -23,15 +29,16 @@ const leaderboard: SlashCommand = {
 			data: {
 				type: InteractionResponseType.ChannelMessageWithSource,
 				data: {
-					content: await build_ascii_leader_board(all_player_stats, db)
+					content: await build_ascii_leader_board(all_player_stats, player_data)
 				}
 			}
 		}
 	},
 };
 
-async function build_ascii_leader_board(all_player_stats: PlayerStats[], db: DB): Promise<string> {
+async function build_ascii_leader_board(all_player_stats: PlayerStats[], player_data: PlayerData[]): Promise<string> {
 	console.log("Building ascii leaderboard")
+	console.log("All player stats: " + JSON.stringify(all_player_stats) + "Player data: " + JSON.stringify(player_data))
 	const columns = ["Name", "Rating", "Average Points", "Average Placement", "Games Played"] as const;
 	const column_to_property_mapping: Record<typeof columns[number], keyof PlayerStats> ={
 		"Name": "player_id",
@@ -44,9 +51,9 @@ async function build_ascii_leader_board(all_player_stats: PlayerStats[], db: DB)
 	const header_separator = "-";
 
 	var printable_player_stats: PlayerStats[] = []
-	console.log("Iterating through all player stat to generate printable player stats: " + JSON.stringify(all_player_stats))
+	console.log("Iterating through all player stat to generate printable player stats")
 	for (const player_stats of all_player_stats){
-		const player = (await get_player_data_from_id(player_stats.player_id, db));
+		const player = (player_data.filter(player => player.id == player_stats.player_id))[0];
 		const name = player ? player.id : "Error on player id " + player_stats.player_id + "contact <@99778758059237376>"
 		printable_player_stats.push({
 			...player_stats,

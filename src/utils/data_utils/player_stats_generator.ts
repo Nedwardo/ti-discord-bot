@@ -1,16 +1,12 @@
-import { DB, get_all_game_player_data, get_all_players } from '../../db/db_interactions.js';
 import { display_rating } from '../rating_system/skill_rating.js';
+import { StoredGamePlayerData } from '../types/game_player_data.js';
+import PlayerData from '../types/player_data.js';
 import PlayerStats, { PlayerGameStats } from '../types/player_stats.js'
 
-export default async function get_all_player_stats(db: DB): Promise<PlayerStats[]>{
+export default function generate_player_stats_array(player_data: PlayerData[], game_player_data: StoredGamePlayerData[]): PlayerStats[]{
     console.log("Getting all player's stats")
     const player_games_map = new Map<string, PlayerGameStats[]>();
     const player_stats: PlayerStats[] = [];
-    const player_data = await get_all_players(db)
-    console.log("All players data: " + JSON.stringify(player_data))
-
-    const game_player_data = await get_all_game_player_data(db)
-    console.log("All game players data: " + JSON.stringify(game_player_data))
 
     console.log("Building player games map")
     game_player_data.forEach((game_player_stats) => {
