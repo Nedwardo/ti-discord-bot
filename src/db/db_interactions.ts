@@ -35,6 +35,7 @@ async function store_new_players(players: PlayerData[], db: DB): Promise<D1Resul
     if (players.length === 0){
         return
     }
+    console.log("Storing players in db: " + JSON.stringify(players))
     return db.insert(schema.players).values(players).run();
 }
 async function update_players(players: PlayerData[], db: DB): Promise<D1Result | void>{
@@ -111,6 +112,8 @@ function update_player_ratings(players: PlayerData[], player_data: GamePlayerDat
 }
 
 function store_and_update_new_players(players: PlayerData[], reported_players: User[], player_ratings: Rating[], db: DB): Promise<(D1Result | void)[]>{
+    console.log("Storing and updating new players")
+    console.log("Reported players: " + JSON.stringify(reported_players))
     const new_players: PlayerData[] = [];
     const players_to_update: PlayerData[] = [];
 
