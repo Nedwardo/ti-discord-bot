@@ -9,7 +9,7 @@ const add_admin_command: SlashCommand = {
     interaction_types: [InteractionType.ApplicationCommand],
 	command_metadata: build_add_admin_slash_command(),
 	async execute(interaction, db) {
-        const admin_id = get_user_option(interaction.data.options, "admin_name")?.id
+        const admin_id = get_user_option(interaction.data.options, "admin_name")
         const result = await save_new_admin(admin_id, db)
         if (result._tag === "Failure"){
             return result

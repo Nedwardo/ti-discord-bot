@@ -1,5 +1,4 @@
 import { APIApplicationCommandInteractionDataOption, ApplicationCommandOptionType } from "discord-api-types/v10";
-import { User } from "./types/game_player_data.js";
 
 function get_option_value<ApplicationCommandOptionType>(
   options: APIApplicationCommandInteractionDataOption[] | undefined,
@@ -24,7 +23,7 @@ export function get_boolean_option(options: APIApplicationCommandInteractionData
   return get_option_value(options, name, ApplicationCommandOptionType.Boolean);
 }
 
-export function get_user_option(options: APIApplicationCommandInteractionDataOption[] | undefined, name: string): User | undefined {
+export function get_user_option(options: APIApplicationCommandInteractionDataOption[] | undefined, name: string): string | undefined {
   console.log("Getting user from:\n" + "name: " + name + "\noptions:\n" + JSON.stringify(options))
   return get_option_value(options, name, ApplicationCommandOptionType.User);
 }

@@ -26,7 +26,6 @@ export const games = sqliteTable("games", {
 });
 
 export const players = sqliteTable("players", {
-	name: text().notNull(),
 	id: text().primaryKey().notNull(),
 	rating_mu: integer("rating_mu").notNull(),
 	rating_sigma: integer("rating_sigma").notNull(),

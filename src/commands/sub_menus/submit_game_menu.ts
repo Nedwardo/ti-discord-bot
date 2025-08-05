@@ -1,5 +1,5 @@
 import {AutoCompleteSlashCommand} from "../../utils/types/command.js";
-import GamePlayerData, { User } from "../../utils/types/game_player_data.js";
+import GamePlayerData from "../../utils/types/game_player_data.js";
 import is_string_numeric from "../../utils/is_string_numeric.js";
 import Result from "../../utils/types/result.js";
 import { parse } from 'date-fns';
@@ -76,7 +76,7 @@ function generate_execute_method(player_count: number, points_to_win: number): (
 
 function get_game_data_from_command_input(interaction: APIChatInputApplicationCommandInteraction, player_count: number, points_to_win: number): Result<{player_data: GamePlayerData[], date: Date, points_to_win: number}, string> {
     const player_data: GamePlayerData[] = [];
-    var player: User | undefined;
+    var player_id: string | undefined;
     var faction: string | undefined;
     var metrics: string | undefined;
     var list_metrics: string[] = []
@@ -127,8 +127,8 @@ function get_game_data_from_command_input(interaction: APIChatInputApplicationCo
         list_numerical_metrics = list_metrics.map(Number)
         console.log("Player metrics are " + list_numerical_metrics)
 
-        player = get_user_option(interaction.data.options, "player_"+player_index+"_discord_name")
-        if (!player){
+        player_id = get_user_option(interaction.data.options, "player_"+player_index+"_discord_name")
+        if (!player_id){
             return {
                 _tag: "Failure",
                 error: "Player at index " + player_index + " not found, summoning <@99778758059237376>"
@@ -144,7 +144,7 @@ function get_game_data_from_command_input(interaction: APIChatInputApplicationCo
             }
         }
         const individual_player_data = {
-            player: player,
+            player: player_id,
             faction: faction,
             t0_speaker_order: list_numerical_metrics[2] as number,
             ranking: list_numerical_metrics[0] as number,

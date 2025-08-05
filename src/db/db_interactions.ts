@@ -2,7 +2,7 @@ import { DrizzleD1Database } from 'drizzle-orm/d1'
 import * as schema from './schema.js'
 import Faction from '../utils/types/faction.js'
 import PlayerData from '../utils/types/player_data.js'
-import GamePlayerData, { StoredGamePlayerData, User } from '../utils/types/game_player_data.js'
+import GamePlayerData, { StoredGamePlayerData } from '../utils/types/game_player_data.js'
 import { v4 as uuid } from 'uuid';
 import type { D1Result } from '@cloudflare/workers-types';
 import { inArray } from 'drizzle-orm'
@@ -79,7 +79,7 @@ export async function store_game_data(game: {player_data: GamePlayerData[], date
     result = await store_game(stored_game_data, db)
     console.log("Result of storing game data: " + JSON.stringify(result))
 
-    result = await store_and_update_new_players(players, game.player_data.map(player_data => player_data.player), player_ratings, db)
+    result = await store_and_update_new_players(players, game.player_data.map(player_data => player_data.player_id), player_ratings, db)
     console.log("Result of storing new player data: " + result)
 
     result = await store_game_player_stats(await get_all_game_player_data(db), game_id, game.player_data, db)
@@ -95,7 +95,7 @@ function update_player_ratings(players: PlayerData[], player_data: GamePlayerDat
     })
 
     const ratings = player_data.map((player_datas) => {
-        const stored_index = existing_id_to_index_map.get(player_datas.player.id);
+        const stored_index = existing_id_to_index_map.get(player_datas.player_id.id);
         if(stored_index !== undefined && players[stored_index]){
             return {
                 mu: players[stored_index].rating_mu,
@@ -111,7 +111,7 @@ function update_player_ratings(players: PlayerData[], player_data: GamePlayerDat
     return rating_system.update_player_rankings(ratings, placings)
 }
 
-function store_and_update_new_players(players: PlayerData[], reported_players: User[], player_ratings: Rating[], db: DB): Promise<(D1Result | void)[]>{
+function store_and_update_new_players(players: PlayerData[], reported_players: string[], player_ratings: Rating[], db: DB): Promise<(D1Result | void)[]>{
     console.log("Storing and updating new players")
     console.log("Reported players: " + JSON.stringify(reported_players))
     const new_players: PlayerData[] = [];
@@ -119,15 +119,14 @@ function store_and_update_new_players(players: PlayerData[], reported_players: U
 
     const existing_player_ids = players.map(player => player.id)
 
-    reported_players.forEach((user, current_index) => {
+    reported_players.forEach((player_id, current_index) => {
         const rating = player_ratings[current_index] as Rating
         const updated_stats = {
-            name: user.username,
-            id: user.id,
+            id: player_id,
             rating_mu: rating.mu,
             rating_sigma: rating.sigma
         }
-        if (existing_player_ids.includes(user.id)){
+        if (existing_player_ids.includes(player_id.id)){
             players_to_update.push(updated_stats)
         }
         else{
@@ -140,7 +139,7 @@ function store_and_update_new_players(players: PlayerData[], reported_players: U
 }
 
 function store_game_player_stats(existing_player_data: StoredGamePlayerData[], game_id: string, player_data: GamePlayerData[], db: DB): Promise<D1Result>{
-    const new_player_stats = player_data.map(({player: player_id, ...rest}) => ({
+    const new_player_stats = player_data.map(({player_id: player_id, ...rest}) => ({
         ...rest,
         game_id: game_id,
         player_id: player_id.id
