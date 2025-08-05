@@ -18,10 +18,10 @@
     "scripts": {
         "start": "tsc --resolveJsonModule && node dist/index.js",
         "build": "tsc",
-        "deploy": "tsc; wrangler deploy --compatibility-date 2025-08-04",
+        "deploy": "tsc && wrangler deploy --compatibility-date 2025-08-04",
         "lint": "npx eslint",
         "logs": "wrangler tail",
-        "deploy:watch": "tsc; wrangler deploy --compatibility-date 2025-08-04; wrangler tail",
+        "deploy:watch": "tsc && wrangler deploy --compatibility-date 2025-08-04 && wrangler tail",
         "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest",
         "test:watch": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest --watch"
     },
