@@ -1,6 +1,5 @@
 import { DB, get_all_game_player_data, get_all_players } from '../../db/db_interactions.js';
 import { display_rating } from '../rating_system/skill_rating.js';
-import PlayerData from '../types/player_data.js';
 import PlayerStats, { PlayerGameStats } from '../types/player_stats.js'
 
 export default async function get_all_player_stats(db: DB): Promise<PlayerStats[]>{
