@@ -44,6 +44,7 @@ async function build_ascii_leader_board(all_player_stats: PlayerStats[], db: DB)
 	const header_separator = "-";
 
 	var printable_player_stats: PlayerStats[] = []
+	console.log("Iterating through all player stat to generate printable player stats: " + JSON.stringify(all_player_stats))
 	for (const player_stats of all_player_stats){
 		const player = (await get_player_data_from_id(player_stats.player_id, db));
 		const name = player ? player.id : "Error on player id " + player_stats.player_id + "contact <@99778758059237376>"
@@ -53,7 +54,9 @@ async function build_ascii_leader_board(all_player_stats: PlayerStats[], db: DB)
 			displayed_rating: Number(player_stats.displayed_rating.toFixed(2))
 		});
 	}
+	console.log("Finished generating printable player stats")
 
+	console.log("Iterating through columns to find max width of each column")
 	const column_max_width = columns.map((column_name) => {
 		const column_width = column_name.length
 
@@ -65,14 +68,18 @@ async function build_ascii_leader_board(all_player_stats: PlayerStats[], db: DB)
 
 		return Math.max(column_width, column_contents_width, 0) + 2
 	});
+	console.log("Finished iterating through columns")
 
+	console.log("Stringifying column row")
 	const column_name_string = stringify_column_row(columns, column_max_width, column_separator)
 
+	console.log("Generating spacer string")
 	const spacer_string = header_separator.repeat(
 		column_max_width.reduce((total_width, width) => total_width + width) +
 		column_max_width.length - 1
 	);
 
+	console.log("Stringifying each player stats")
 	const contents_string = printable_player_stats.map(
 		(player_stats) => {
 			const row_content: (string | number)[] = Object.values(player_stats);
@@ -81,6 +88,7 @@ async function build_ascii_leader_board(all_player_stats: PlayerStats[], db: DB)
 	).reduce((contents_string, row) => 
 		contents_string + "\n" + row 
 	);
+	console.log("Finished stringifying")
 
 	return "```" + column_name_string + "\n" + spacer_string + "\n" + contents_string + "```"
 }
