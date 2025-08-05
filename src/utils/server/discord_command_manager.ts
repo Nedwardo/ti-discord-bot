@@ -97,7 +97,7 @@ export async function handle_slash_command(interaction: APIChatInputApplicationC
         error_message = "Sorry my ass is too lazy to make this app work 90% of the time, so only an admin can use it.\nPlease ask Ed to become an admin"
     }
     else{
-        console.log("Successfully found command")
+        console.log("Successfully found slash command " + interaction.data.name)
         try{
             return (command as SlashCommand).execute(interaction, db);
         } catch (error){
@@ -115,6 +115,7 @@ export async function handle_slash_command(interaction: APIChatInputApplicationC
 }
 
 export async function handle_autocomplete_command(interaction:  APIApplicationCommandAutocompleteInteraction, db: DB): Promise<Result<APIInteractionResponse, string>> {
+    console.log("Handling autocomplete command")
     const commands = await getCommands();
     const command = commands.get(interaction.data.name);
 
@@ -131,6 +132,7 @@ export async function handle_autocomplete_command(interaction:  APIApplicationCo
         }
     }
     try{
+        console.log("Successfully found autocomplete command " + interaction.data.name)
         return (command as AutoCompleteSlashCommand).auto_complete_update(interaction, db);
     } catch (error){
         return {
