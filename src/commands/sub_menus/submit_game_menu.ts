@@ -63,7 +63,7 @@ function generate_execute_method(player_count: number, points_to_win: number): (
             return game_data_result
         }
         
-        store_game_data(game_data_result.data, db);
+        await store_game_data(game_data_result.data, db);
         return {
             _tag: "Success",
             data: {
