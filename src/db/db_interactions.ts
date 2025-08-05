@@ -28,9 +28,6 @@ export async function get_all_players(db: DB): Promise<PlayerData[]>{
     console.log("Getting player list from db")
     return db.select().from(schema.players).all()
 }
-export async function get_player_data_from_id(id: string, db: DB): Promise<PlayerData | undefined>{
-    return db.query.players.findFirst({with: {id: id}})
-}
 async function store_new_players(players: PlayerData[], db: DB): Promise<D1Result | void>{
     if (players.length === 0){
         return
