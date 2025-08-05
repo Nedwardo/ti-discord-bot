@@ -55,7 +55,7 @@ async function save_new_admin(new_admin_id: string | undefined, db: DB): Promise
         };
     }
 
-    add_admin(new_admin_id, db)
+    await add_admin(new_admin_id, db)
     return {
         _tag: "Success",
         data: "Admin: <@" + new_admin_id + "> added"
